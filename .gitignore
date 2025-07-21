@@ -1,0 +1,39 @@
+# Python bytecode and virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+.venv/
+venv/
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environment directories
+venv/
+ENV/
+librarea/
+
+# IDE-specific files
+.idea/                  # PyCharm
+.vscode/                # VS Code
+*.sublime-project
+*.sublime-workspace
+
+# OS-specific files
+.DS_Store               # macOS
+Thumbs.db               # Windows
+Desktop.ini             # Windows
+
+# Environment variables (sensitive data)
+.env
+
+# User uploaded images and cropped spines (generated at runtime)
+uploads/
+
+Dockerfile
+
+runs/
