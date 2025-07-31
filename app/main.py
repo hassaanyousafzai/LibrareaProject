@@ -32,16 +32,23 @@ async def check_duplicate_json_keys_middleware(request: Request, call_next):
         if body:
             try:
                 pairs = json.JSONDecoder(object_pairs_hook=lambda x: x).decode(body.decode())
-                keys = [k for k, v in pairs]
-                if len(keys) != len(set(keys)):
-                    seen = set()
-                    for key in keys:
-                        if key in seen:
+                
+                seen_keys = {}
+                for key, value in pairs:
+                    if key in seen_keys:
+                        # If key is already seen, check if the value is different
+                        if seen_keys[key] != value:
                             return JSONResponse(
                                 status_code=400,
-                                content={"detail": f"Duplicate key found in JSON body: {key}"}
+                                content={"detail": f"Duplicate key '{key}' found with conflicting values."}
                             )
-                        seen.add(key)
+                        # If values are the same, it's still a duplicate key scenario
+                        return JSONResponse(
+                            status_code=400,
+                            content={"detail": f"Duplicate key found in JSON body: {key}"}
+                        )
+                    seen_keys[key] = value
+
             except json.JSONDecodeError:
                 # Let FastAPI's built-in validation handle malformed JSON
                 pass

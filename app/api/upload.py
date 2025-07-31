@@ -11,7 +11,13 @@ from core.tasks_store import upload_tasks
 from services.yolo import perform_yolo_inference
 from services.gemini_ocr import get_book_metadata_from_spine
 from services.google_books import enrich_book_metadata
-from services.image_processing import preprocess_multi_scale, group_books_into_shelves, filter_spine_detections
+from services.image_processing import (
+    preprocess_multi_scale, 
+    group_books_into_shelves, 
+    filter_spine_detections,
+    merge_overlapping_boxes,
+    is_image_blurred
+)
 from services.cleanup import cleanup_task_resources
 
 router = APIRouter()
@@ -35,7 +41,7 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
 
         logger.info(f"Starting image processing for task {image_id} ('{original_filename}').")
 
-        upload_tasks[image_id]["message"] = "Preprocessing image and checking for blur..."
+        upload_tasks[image_id]["message"] = "Preprocessing image..."
         img_full_norm, img_small_norm, scale = preprocess_multi_scale(contents)
         original_image_height, original_image_width = img_full_norm.shape[:2]
         
@@ -59,9 +65,11 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
         boxes_full = (boxes_small / scale).tolist()
         scores = [b.conf.item() for b in results[0].boxes]
 
-        # Create preliminary detections for spine filtering
+        merged_boxes, merged_scores = merge_overlapping_boxes(boxes_full, scores)
+        logger.info(f"Initial detections: {len(boxes_full)}, After merging: {len(merged_boxes)}")
+
         preliminary_detections = []
-        for idx, (box, score) in enumerate(zip(boxes_full, scores), start=1):
+        for idx, (box, score) in enumerate(zip(merged_boxes, merged_scores), start=1):
             book_id = f"{image_id}_book_{idx}"
             preliminary_detections.append({
                 "book_id": book_id,
@@ -78,7 +86,6 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
                    f"{len(spine_detections)} identified as spines, "
                    f"{len(rejected_detections)} rejected as non-spines")
         
-        # If no valid spines detected, complete task with appropriate message
         if not spine_detections:
             logger.info(f"No book spines detected in image {image_id}")
             no_spines_message = "No book spines were detected in the image."
@@ -138,12 +145,10 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
             upload_tasks[image_id]["message"] = f"Enriching metadata for spine {idx} of {total_spines}..."
             enrichment = enrich_book_metadata(title, author, series_name, crop_name)
 
-            # If author was missing from OCR but found in Google Books API, use the API author
             if (not author or author.strip() == "") and enrichment.get("author_from_api"):
                 ocr_meta["Author"] = enrichment["author_from_api"]
                 logger.info(f"[UPLOAD] Updated Author for {crop_name}: OCR='{author}' → API='{enrichment['author_from_api']}'")
 
-            # Remove author_from_api from enrichment as it's now merged into ocr_meta
             enrichment_clean = {k: v for k, v in enrichment.items() if k != "author_from_api"}
             combined_meta = {**ocr_meta, **enrichment_clean}
             book_id = spine_detection["book_id"]
@@ -174,13 +179,25 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
 
 @router.post("/upload-image/")
 async def upload_image(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
-    if file.content_type.split('/')[0] != 'image':
-        raise HTTPException(status_code=415, detail="Unsupported media type")
-
-    image_id = str(uuid.uuid4())
     contents = await file.read()
     
-    # Initialize task state immediately
+    # Perform quick, synchronous checks first
+    image_array = np.frombuffer(contents, np.uint8)
+    img = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+    
+    if img is None:
+        raise HTTPException(status_code=415, message="Unsupported file format")
+
+    is_blurred, fft_score = is_image_blurred(img)
+    if is_blurred:
+        raise HTTPException(
+            status_code=400, 
+            message=f"The image is too blurry to process (FFT score: {fft_score:.2f})"
+        )
+
+    # If checks pass, proceed to background processing
+    image_id = str(uuid.uuid4())
+    
     upload_tasks[image_id] = {
         "status": "queued",
         "message": "Upload received, task is queued to start.",

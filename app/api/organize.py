@@ -23,9 +23,7 @@ async def organize_shelf(request: OrganizeRequest):
 
     cached_data = processed_images_cache[image_id]
     
-    # Check if the cached data indicates no spines were detected
     if isinstance(cached_data, dict) and "message" in cached_data:
-        # Handle the case where no book spines were detected
         return JSONResponse({
             "image_id": image_id,
             "message": cached_data["message"],
@@ -36,6 +34,20 @@ async def organize_shelf(request: OrganizeRequest):
         })
     
     current_shelf_layout = cached_data
+    total_shelves = len(current_shelf_layout)
+
+    # Validate shelf_number
+    if shelf_number is not None:
+        if shelf_number <= 0:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid shelf_number. Shelf number must be a positive integer. This image has {total_shelves} shelves."
+            )
+        if shelf_number > total_shelves:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid shelf_number. Shelf number {shelf_number} is out of range. This image has {total_shelves} shelves."
+            )
 
     valid_sort_by = ["author", "title", "genre", "height"]
     valid_sort_order = ["asc", "desc"]
@@ -95,17 +107,14 @@ async def organize_shelf(request: OrganizeRequest):
 
         shelf_reorder_moves = []
         
-        # Create a mapping from book_id to original position for easier lookup
         original_positions = {book['book_id']: book['position'] for book in books_on_current_shelf}
         
-        # Check if the shelf order actually changed by comparing book IDs in order
         original_book_ids = [book['book_id'] for book in books_on_current_shelf]
         sorted_book_ids = [book['book_id'] for book in books_to_sort]
         
         shelf_order_changed = original_book_ids != sorted_book_ids
         
         if shelf_order_changed:
-            # Generate move instructions for ALL books to show the complete reordering
             for new_pos, book in enumerate(books_to_sort, start=1):
                 book_id = book['book_id']
                 original_pos = original_positions[book_id]
