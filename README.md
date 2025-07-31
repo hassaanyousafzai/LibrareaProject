@@ -1,7 +1,7 @@
 
-# Librairea: AI-Powered Bookshelf Organizer
+# Librarea: AI-Powered Bookshelf Organizer
 
-Librairea is an intelligent bookshelf organization tool that uses computer vision and AI to help you manage your physical book collection. Simply upload a picture of your bookshelf, and Librairea will automatically detect, identify, and organize your books, providing you with a digital inventory and smart reorganization suggestions.
+Librarea is an intelligent bookshelf organization tool that uses computer vision and AI to help you manage your physical book collection. Simply upload a picture of your bookshelf, and Librairea will automatically detect, identify, and organize your books, providing you with a digital inventory and smart reorganization suggestions.
 
 ## Features
 
@@ -45,8 +45,8 @@ Librairea is an intelligent bookshelf organization tool that uses computer visio
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/librarea.git
-    cd librarea
+    git clone https://github.com/hassaanyousafzai/LibrareaProject.git
+    cd LibrareaProject
     ```
 2.  **Install the dependencies:**
     ```bash
