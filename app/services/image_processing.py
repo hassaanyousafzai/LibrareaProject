@@ -13,7 +13,6 @@ def merge_overlapping_boxes(boxes: List[List[float]], scores: List[float], iou_t
     if not boxes:
         return [], []
 
-    # Sort boxes by their score in descending order
     sorted_indices = np.argsort(scores)[::-1]
     
     merged_boxes = []
@@ -27,14 +26,12 @@ def merge_overlapping_boxes(boxes: List[List[float]], scores: List[float], iou_t
         merged_boxes.append(current_box)
         merged_scores.append(current_score)
         
-        # Indices to keep for the next iteration
         remaining_indices = []
         
         for i in range(1, len(sorted_indices)):
             next_idx = sorted_indices[i]
             next_box = boxes[next_idx]
             
-            # Calculate IoU
             x1 = max(current_box[0], next_box[0])
             y1 = max(current_box[1], next_box[1])
             x2 = min(current_box[2], next_box[2])
@@ -51,7 +48,6 @@ def merge_overlapping_boxes(boxes: List[List[float]], scores: List[float], iou_t
                 remaining_indices.append(next_idx)
         
         sorted_indices = [idx for idx in sorted_indices if idx in remaining_indices]
-        # Re-sort remaining by score to ensure we always process the highest-scored box
         sorted_indices = sorted(remaining_indices, key=lambda idx: scores[idx], reverse=True)
 
     return merged_boxes, merged_scores
@@ -59,13 +55,10 @@ def merge_overlapping_boxes(boxes: List[List[float]], scores: List[float], iou_t
 def is_image_blurred(image: np.ndarray, threshold: float = 20.0, size: int = 60) -> Tuple[bool, float]:
     """
     Checks if an image is blurred using Fast Fourier Transform (FFT).
-    A lower FFT magnitude score indicates a blurrier image.
-    Returns a tuple of (is_blurred, fft_score).
     """
     if image is None:
         return True, 0.0
 
-    # Convert to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     
     h, w = gray.shape
@@ -84,15 +77,13 @@ def is_image_blurred(image: np.ndarray, threshold: float = 20.0, size: int = 60)
     
     is_blurred_flag = mean_magnitude < threshold
     
-    logger.info(f"FFT blur detection: Mean Magnitude = {mean_magnitude:.2f}, Threshold = {threshold}, Is Blurred = {is_blurred_flag}")
-    
     return is_blurred_flag, mean_magnitude
 
 def is_likely_book_spine(bbox: List[float], image_width: int, image_height: int, 
                         min_aspect_ratio: float = None, max_width_ratio: float = None, 
                         min_height_ratio: float = None) -> Tuple[bool, str]:
     """
-    Determines if a detected bounding box is likely a book spine based on geometric characteristics.
+    Determines if a detected bounding box is likely a book spine.
     """
     if min_aspect_ratio is None:
         min_aspect_ratio = SPINE_MIN_ASPECT_RATIO
@@ -174,7 +165,7 @@ def analyze_text_orientation(crop_image: np.ndarray) -> Tuple[str, float]:
 
 def filter_spine_detections(detections: List[Dict], image_width: int, image_height: int) -> Tuple[List[Dict], List[Dict]]:
     """
-    Filters detections to separate likely spines from covers/non-spine objects.
+    Filters detections to separate likely spines from non-spine objects.
     """
     spine_detections = []
     rejected_detections = []
@@ -192,25 +183,21 @@ def filter_spine_detections(detections: List[Dict], image_width: int, image_heig
         
         if is_spine:
             spine_detections.append(detection)
-            logger.info(f"Accepted detection {detection.get('book_id', 'unknown')}: {reason}")
         else:
             rejected_detections.append({
                 **detection,
                 'rejection_reason': reason
             })
-            logger.info(f"Rejected detection {detection.get('book_id', 'unknown')}: {reason}")
     
     return spine_detections, rejected_detections
 
 def preprocess_multi_scale(image_bytes: bytes):
     """
     Decodes and resizes an image for model processing.
-    The blur check should be done *before* calling this.
     """
     arr = np.frombuffer(image_bytes, np.uint8)
     img_full = cv2.imdecode(arr, cv2.IMREAD_COLOR)
     if img_full is None:
-        # This case should ideally be handled before the background task starts.
         raise ValueError("Could not decode image in background task.")
 
     h, w = img_full.shape[:2]
@@ -227,14 +214,12 @@ def preprocess_multi_scale(image_bytes: bytes):
 
 def group_books_into_shelves(books_data: list, original_image_height: int, vertical_proximity_threshold_ratio: float = 0.08) -> List[Dict[str, Any]]:
     """
-    Groups books into shelves based on their vertical proximity and then
-    sorts them horizontally within each shelf.
+    Groups books into shelves based on their vertical proximity.
     """
     if not books_data:
         return []
 
     vertical_threshold = original_image_height * vertical_proximity_threshold_ratio
-    logger.info(f"Calculated vertical proximity threshold: {vertical_threshold:.2f} pixels (from image height {original_image_height})")
 
     sorted_books_by_y = sorted(books_data, key=lambda b: (b['bbox'][1] + b['bbox'][3]) / 2)
 

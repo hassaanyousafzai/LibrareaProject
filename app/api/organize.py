@@ -36,7 +36,6 @@ async def organize_shelf(request: OrganizeRequest):
     current_shelf_layout = cached_data
     total_shelves = len(current_shelf_layout)
 
-    # Validate shelf_number
     if shelf_number is not None:
         if shelf_number <= 0:
             raise HTTPException(

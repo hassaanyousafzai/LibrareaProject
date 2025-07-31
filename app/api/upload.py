@@ -26,25 +26,16 @@ logger = get_logger(__name__)
 def is_blank_spine(metadata: dict) -> bool:
     """
     Determines if a spine should be considered blank and filtered out.
-    
-    Args:
-        metadata: The combined metadata dictionary from OCR and enrichment
-        
-    Returns:
-        True if the spine should be filtered out, False otherwise
     """
     title = metadata.get("Book Name", "").strip()
     author = metadata.get("Author", "").strip()
     
-    # Consider blank if both title and author are empty
     if not title and not author:
         return True
         
-    # Consider blank if title is very short (likely OCR noise)
     if title and len(title) < 3:
         return True
         
-    # Consider blank if author is very short (likely OCR noise)
     if author and len(author) < 2:
         return True
     
@@ -63,17 +54,13 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
     try:
         task_state = upload_tasks.get(image_id)
         if not task_state:
-            logger.warning(f"Task {image_id} started but no state found.")
             return
-
-        logger.info(f"Starting image processing for task {image_id} ('{original_filename}').")
 
         upload_tasks[image_id]["message"] = "Preprocessing image..."
         img_full_norm, img_small_norm, scale = preprocess_multi_scale(contents)
         original_image_height, original_image_width = img_full_norm.shape[:2]
         
         if task_state.get("cancel"):
-            logger.info(f"Cancellation detected for task {image_id} after preprocessing.")
             upload_tasks[image_id].update({"status": "cancelled", "message": "Task was cancelled by user."})
             cleanup_task_resources(image_id)
             return
@@ -83,7 +70,6 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
         results = perform_yolo_inference(img_small_uint8)
         
         if task_state.get("cancel"):
-            logger.info(f"Cancellation detected for task {image_id} after YOLO inference.")
             upload_tasks[image_id].update({"status": "cancelled", "message": "Task was cancelled by user."})
             cleanup_task_resources(image_id)
             return
@@ -93,7 +79,6 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
         scores = [b.conf.item() for b in results[0].boxes]
 
         merged_boxes, merged_scores = merge_overlapping_boxes(boxes_full, scores)
-        logger.info(f"Initial detections: {len(boxes_full)}, After merging: {len(merged_boxes)}")
 
         preliminary_detections = []
         for idx, (box, score) in enumerate(zip(merged_boxes, merged_scores), start=1):
@@ -109,12 +94,7 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
             preliminary_detections, original_image_width, original_image_height
         )
         
-        logger.info(f"YOLO detected {len(preliminary_detections)} objects, "
-                   f"{len(spine_detections)} identified as spines, "
-                   f"{len(rejected_detections)} rejected as non-spines")
-        
         if not spine_detections:
-            logger.info(f"No book spines detected in image {image_id}")
             no_spines_message = "No book spines were detected in the image."
             upload_tasks[image_id].update({"status": "completed", "message": no_spines_message})
             processed_images_cache[image_id] = {
@@ -133,7 +113,6 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
         annotated_path = os.path.join(UPLOAD_DIR, annotated_filename)
         with open(annotated_path, 'wb') as f:
             f.write(buf.tobytes())
-        logger.info(f"Annotated image saved to {annotated_path}")
 
         img_full_uint8 = (img_full_norm * 255).astype(np.uint8)
         spine_dir = os.path.join(UPLOAD_DIR, "cropped_spines", image_id)
@@ -145,7 +124,6 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
         
         for idx, spine_detection in enumerate(spine_detections, start=1):
             if task_state.get("cancel"):
-                logger.info(f"Cancellation detected for task {image_id} during book processing.")
                 upload_tasks[image_id].update({"status": "cancelled", "message": "Task was cancelled by user."})
                 cleanup_task_resources(image_id)
                 return
@@ -156,7 +134,6 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
             x1, y1, x2, y2 = map(int, box)
             crop = img_full_uint8[y1:y2, x1:x2]
             if crop.size == 0:
-                logger.warning(f"Skipping empty crop for box {idx}: {box}")
                 continue
 
             crop_name = f"{image_id}_spine_{idx}.jpg"
@@ -176,15 +153,12 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
 
             if (not author or author.strip() == "") and enrichment.get("author_from_api"):
                 ocr_meta["Author"] = enrichment["author_from_api"]
-                logger.info(f"[UPLOAD] Updated Author for {crop_name}: OCR='{author}' → API='{enrichment['author_from_api']}'")
 
             enrichment_clean = {k: v for k, v in enrichment.items() if k != "author_from_api"}
             combined_meta = {**ocr_meta, **enrichment_clean}
             
-            # Check if this spine should be filtered out as blank
             if is_blank_spine(combined_meta):
                 filtered_blank_spines += 1
-                logger.info(f"[UPLOAD] Filtering out blank spine {crop_name}: title='{combined_meta.get('Book Name', '')}', author='{combined_meta.get('Author', '')}'")
                 continue
             
             book_id = spine_detection["book_id"]
@@ -205,14 +179,11 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
             final_message += f" Filtered out {filtered_blank_spines} blank spines."
         
         upload_tasks[image_id].update({"status": "completed", "message": final_message})
-        logger.info(f"Image processing for task {image_id} completed successfully. Filtered {filtered_blank_spines} blank spines.")
 
     except ValueError as ve:
         error_message = f"Processing failed: {ve}"
-        logger.error(error_message)
         upload_tasks[image_id].update({"status": "failed", "message": error_message, "error": str(ve)})
     except Exception as e:
-        logger.exception(f"An error occurred during image processing for task {image_id}: {e}")
         error_message = "An unexpected error occurred during processing."
         upload_tasks[image_id].update({"status": "failed", "message": error_message, "error": str(e)})
 
@@ -220,7 +191,6 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
 async def upload_image(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
     contents = await file.read()
     
-    # Perform quick, synchronous checks first
     image_array = np.frombuffer(contents, np.uint8)
     img = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
     
@@ -234,7 +204,6 @@ async def upload_image(background_tasks: BackgroundTasks, file: UploadFile = Fil
             message=f"The image is too blurry to process (FFT score: {fft_score:.2f})"
         )
 
-    # If checks pass, proceed to background processing
     image_id = str(uuid.uuid4())
     
     upload_tasks[image_id] = {
