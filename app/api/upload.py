@@ -23,6 +23,33 @@ from services.cleanup import cleanup_task_resources
 router = APIRouter()
 logger = get_logger(__name__)
 
+def is_blank_spine(metadata: dict) -> bool:
+    """
+    Determines if a spine should be considered blank and filtered out.
+    
+    Args:
+        metadata: The combined metadata dictionary from OCR and enrichment
+        
+    Returns:
+        True if the spine should be filtered out, False otherwise
+    """
+    title = metadata.get("Book Name", "").strip()
+    author = metadata.get("Author", "").strip()
+    
+    # Consider blank if both title and author are empty
+    if not title and not author:
+        return True
+        
+    # Consider blank if title is very short (likely OCR noise)
+    if title and len(title) < 3:
+        return True
+        
+    # Consider blank if author is very short (likely OCR noise)
+    if author and len(author) < 2:
+        return True
+    
+    return False
+
 def run_image_processing_task(image_id: str, contents: bytes, original_filename: str):
     """The main function to be run in the background for processing an uploaded image."""
     
@@ -114,6 +141,8 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
 
         total_spines = len(spine_detections)
         detections = []
+        filtered_blank_spines = 0
+        
         for idx, spine_detection in enumerate(spine_detections, start=1):
             if task_state.get("cancel"):
                 logger.info(f"Cancellation detected for task {image_id} during book processing.")
@@ -151,6 +180,13 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
 
             enrichment_clean = {k: v for k, v in enrichment.items() if k != "author_from_api"}
             combined_meta = {**ocr_meta, **enrichment_clean}
+            
+            # Check if this spine should be filtered out as blank
+            if is_blank_spine(combined_meta):
+                filtered_blank_spines += 1
+                logger.info(f"[UPLOAD] Filtering out blank spine {crop_name}: title='{combined_meta.get('Book Name', '')}', author='{combined_meta.get('Author', '')}'")
+                continue
+            
             book_id = spine_detection["book_id"]
             detections.append({
                 "book_id": book_id,
@@ -165,8 +201,11 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
         processed_images_cache[image_id] = shelf_mapped_books
         
         final_message = f"Processing complete. Found {len(detections)} books on {len(shelf_mapped_books)} shelves."
+        if filtered_blank_spines > 0:
+            final_message += f" Filtered out {filtered_blank_spines} blank spines."
+        
         upload_tasks[image_id].update({"status": "completed", "message": final_message})
-        logger.info(f"Image processing for task {image_id} completed successfully.")
+        logger.info(f"Image processing for task {image_id} completed successfully. Filtered {filtered_blank_spines} blank spines.")
 
     except ValueError as ve:
         error_message = f"Processing failed: {ve}"
