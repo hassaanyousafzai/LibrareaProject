@@ -21,7 +21,21 @@ async def organize_shelf(request: OrganizeRequest):
     if image_id not in processed_images_cache:
         raise HTTPException(status_code=404, detail="Image data not found. Please upload the image first.")
 
-    current_shelf_layout = processed_images_cache[image_id]
+    cached_data = processed_images_cache[image_id]
+    
+    # Check if the cached data indicates no spines were detected
+    if isinstance(cached_data, dict) and "message" in cached_data:
+        # Handle the case where no book spines were detected
+        return JSONResponse({
+            "image_id": image_id,
+            "message": cached_data["message"],
+            "total_detections": cached_data.get("total_detections", 0),
+            "rejected_detections": cached_data.get("rejected_detections", []),
+            "spine_detections": cached_data.get("spine_detections", []),
+            "can_organize": False
+        })
+    
+    current_shelf_layout = cached_data
 
     valid_sort_by = ["author", "title", "genre", "height"]
     valid_sort_order = ["asc", "desc"]
@@ -80,20 +94,28 @@ async def organize_shelf(request: OrganizeRequest):
             books_to_sort = books_on_current_shelf
 
         shelf_reorder_moves = []
-        sorted_book_id_to_new_position = {book['book_id']: i + 1 for i, book in enumerate(books_to_sort)}
-
-        for original_book in books_on_current_shelf:
-            book_id = original_book['book_id']
-            original_pos = original_book['position']
-            new_pos = sorted_book_id_to_new_position.get(book_id)
-
-            if new_pos is not None and original_pos != new_pos:
+        
+        # Create a mapping from book_id to original position for easier lookup
+        original_positions = {book['book_id']: book['position'] for book in books_on_current_shelf}
+        
+        # Check if the shelf order actually changed by comparing book IDs in order
+        original_book_ids = [book['book_id'] for book in books_on_current_shelf]
+        sorted_book_ids = [book['book_id'] for book in books_to_sort]
+        
+        shelf_order_changed = original_book_ids != sorted_book_ids
+        
+        if shelf_order_changed:
+            # Generate move instructions for ALL books to show the complete reordering
+            for new_pos, book in enumerate(books_to_sort, start=1):
+                book_id = book['book_id']
+                original_pos = original_positions[book_id]
+                
                 shelf_reorder_moves.append({
                     "action": "move",
                     "shelf": shelf_name,
                     "book_id": book_id,
-                    "book_name": original_book['metadata'].get("Book Name", "N/A"),
-                    "author": original_book['metadata'].get("Author", "N/A"),
+                    "book_name": book['metadata'].get("Book Name", "N/A"),
+                    "author": book['metadata'].get("Author", "N/A"),
                     "original_position": original_pos,
                     "new_position": new_pos
                 })

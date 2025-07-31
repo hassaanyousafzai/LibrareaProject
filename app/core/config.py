@@ -13,5 +13,10 @@ MAX_SMALL_DIM = 1200
 CONFIDENCE_THRESHOLD = float(os.getenv("YOLO_CONF", 0.4))
 GOOGLE_BOOKS_API_KEY = os.getenv("GOOGLE_BOOKS_API_KEY")
 
+# Spine Detection Configuration
+SPINE_MIN_ASPECT_RATIO = float(os.getenv("SPINE_MIN_ASPECT_RATIO", 2.5))  # height/width ratio
+SPINE_MAX_WIDTH_RATIO = float(os.getenv("SPINE_MAX_WIDTH_RATIO", 0.30))   # width/image_width ratio
+SPINE_MIN_HEIGHT_RATIO = float(os.getenv("SPINE_MIN_HEIGHT_RATIO", 0.1))  # height/image_height ratio
+
 # Ensure upload directory exists
 os.makedirs(UPLOAD_DIR, exist_ok=True)

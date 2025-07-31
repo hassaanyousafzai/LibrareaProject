@@ -1,67 +1,129 @@
 import os
 import cv2
+import uuid
 import numpy as np
-from fastapi import APIRouter, File, UploadFile, HTTPException
+from fastapi import APIRouter, File, UploadFile, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
 from core.config import UPLOAD_DIR
 from core.logger import get_logger
 from core.cache import processed_images_cache
+from core.tasks_store import upload_tasks
 from services.yolo import perform_yolo_inference
 from services.gemini_ocr import get_book_metadata_from_spine
 from services.google_books import enrich_book_metadata
-from services.image_processing import preprocess_multi_scale, group_books_into_shelves
+from services.image_processing import preprocess_multi_scale, group_books_into_shelves, filter_spine_detections
+from services.cleanup import cleanup_task_resources
 
 router = APIRouter()
 logger = get_logger(__name__)
 
-@router.post("/upload-image/")
-async def upload_image(file: UploadFile = File(...)):
-    if file.content_type.split('/')[0] != 'image':
-        raise HTTPException(status_code=415, detail="Unsupported media type")
+def run_image_processing_task(image_id: str, contents: bytes, original_filename: str):
+    """The main function to be run in the background for processing an uploaded image."""
+    
+    upload_tasks[image_id] = {
+        "status": "processing",
+        "message": f"Starting processing for '{original_filename}'...",
+        "filename": original_filename,
+        "cancel": False
+    }
 
-    contents = await file.read()
     try:
-        img_full_norm, img_small_norm, scale = preprocess_multi_scale(contents)
-        original_image_height = img_full_norm.shape[0]
-        original_image_width = img_full_norm.shape[1]
+        task_state = upload_tasks.get(image_id)
+        if not task_state:
+            logger.warning(f"Task {image_id} started but no state found.")
+            return
 
+        logger.info(f"Starting image processing for task {image_id} ('{original_filename}').")
+
+        upload_tasks[image_id]["message"] = "Preprocessing image and checking for blur..."
+        img_full_norm, img_small_norm, scale = preprocess_multi_scale(contents)
+        original_image_height, original_image_width = img_full_norm.shape[:2]
+        
+        if task_state.get("cancel"):
+            logger.info(f"Cancellation detected for task {image_id} after preprocessing.")
+            upload_tasks[image_id].update({"status": "cancelled", "message": "Task was cancelled by user."})
+            cleanup_task_resources(image_id)
+            return
+        
+        upload_tasks[image_id]["message"] = "Detecting books with YOLO model..."
         img_small_uint8 = (img_small_norm * 255).astype(np.uint8)
-        try:
-            results = perform_yolo_inference(img_small_uint8)
-        except Exception:
-            logger.exception("YOLO inference failed")
-            raise HTTPException(status_code=500, detail="YOLO inference failed")
+        results = perform_yolo_inference(img_small_uint8)
+        
+        if task_state.get("cancel"):
+            logger.info(f"Cancellation detected for task {image_id} after YOLO inference.")
+            upload_tasks[image_id].update({"status": "cancelled", "message": "Task was cancelled by user."})
+            cleanup_task_resources(image_id)
+            return
 
         boxes_small = results[0].boxes.xyxy.cpu().numpy()
         boxes_full = (boxes_small / scale).tolist()
         scores = [b.conf.item() for b in results[0].boxes]
 
-        annotated = results[0].plot()
-        annotated_full = cv2.resize(
-            annotated,
-            (original_image_width, original_image_height),
-            interpolation=cv2.INTER_LINEAR
+        # Create preliminary detections for spine filtering
+        preliminary_detections = []
+        for idx, (box, score) in enumerate(zip(boxes_full, scores), start=1):
+            book_id = f"{image_id}_book_{idx}"
+            preliminary_detections.append({
+                "book_id": book_id,
+                "bbox": box,
+                "confidence": f"{round(float(score) * 100)}%",
+            })
+
+        upload_tasks[image_id]["message"] = "Filtering detections to identify book spines..."
+        spine_detections, rejected_detections = filter_spine_detections(
+            preliminary_detections, original_image_width, original_image_height
         )
+        
+        logger.info(f"YOLO detected {len(preliminary_detections)} objects, "
+                   f"{len(spine_detections)} identified as spines, "
+                   f"{len(rejected_detections)} rejected as non-spines")
+        
+        # If no valid spines detected, complete task with appropriate message
+        if not spine_detections:
+            logger.info(f"No book spines detected in image {image_id}")
+            no_spines_message = "No book spines were detected in the image."
+            upload_tasks[image_id].update({"status": "completed", "message": no_spines_message})
+            processed_images_cache[image_id] = {
+                "message": no_spines_message,
+                "total_detections": len(preliminary_detections),
+                "rejected_detections": rejected_detections,
+                "spine_detections": []
+            }
+            return
+
+        annotated = results[0].plot()
+        annotated_full = cv2.resize(annotated, (original_image_width, original_image_height), interpolation=cv2.INTER_LINEAR)
         _, buf = cv2.imencode('.jpg', annotated_full)
-        annotated_path = os.path.join(UPLOAD_DIR, file.filename)
+        
+        annotated_filename = f"{image_id}.jpg"
+        annotated_path = os.path.join(UPLOAD_DIR, annotated_filename)
         with open(annotated_path, 'wb') as f:
             f.write(buf.tobytes())
         logger.info(f"Annotated image saved to {annotated_path}")
 
         img_full_uint8 = (img_full_norm * 255).astype(np.uint8)
-        base = os.path.splitext(file.filename)[0]
-        spine_dir = os.path.join(UPLOAD_DIR, "cropped_spines", base)
+        spine_dir = os.path.join(UPLOAD_DIR, "cropped_spines", image_id)
         os.makedirs(spine_dir, exist_ok=True)
 
+        total_spines = len(spine_detections)
         detections = []
-        for idx, (box, score) in enumerate(zip(boxes_full, scores), start=1):
+        for idx, spine_detection in enumerate(spine_detections, start=1):
+            if task_state.get("cancel"):
+                logger.info(f"Cancellation detected for task {image_id} during book processing.")
+                upload_tasks[image_id].update({"status": "cancelled", "message": "Task was cancelled by user."})
+                cleanup_task_resources(image_id)
+                return
+            
+            upload_tasks[image_id]["message"] = f"Extracting text from spine {idx} of {total_spines}..."
+
+            box = spine_detection["bbox"]
             x1, y1, x2, y2 = map(int, box)
             crop = img_full_uint8[y1:y2, x1:x2]
             if crop.size == 0:
                 logger.warning(f"Skipping empty crop for box {idx}: {box}")
                 continue
 
-            crop_name = f"{base}_spine{idx}.jpg"
+            crop_name = f"{image_id}_spine_{idx}.jpg"
             crop_path = os.path.join(spine_dir, crop_name)
             cv2.imwrite(crop_path, crop)
 
@@ -69,37 +131,66 @@ async def upload_image(file: UploadFile = File(...)):
                 crop_bytes = img_f.read()
             
             ocr_meta = get_book_metadata_from_spine(crop_bytes, crop_name)
-            
             title = ocr_meta.get("Book Name") or ""
             author = ocr_meta.get("Author") or ""
-            enrichment = enrich_book_metadata(title, author, crop_name)
+            series_name = ocr_meta.get("Series_Name") or ""
+            
+            upload_tasks[image_id]["message"] = f"Enriching metadata for spine {idx} of {total_spines}..."
+            enrichment = enrich_book_metadata(title, author, series_name, crop_name)
 
-            combined_meta = {**ocr_meta, **enrichment}
+            # If author was missing from OCR but found in Google Books API, use the API author
+            if (not author or author.strip() == "") and enrichment.get("author_from_api"):
+                ocr_meta["Author"] = enrichment["author_from_api"]
+                logger.info(f"[UPLOAD] Updated Author for {crop_name}: OCR='{author}' → API='{enrichment['author_from_api']}'")
 
-            book_id = f"{base}_book_{idx}"
+            # Remove author_from_api from enrichment as it's now merged into ocr_meta
+            enrichment_clean = {k: v for k, v in enrichment.items() if k != "author_from_api"}
+            combined_meta = {**ocr_meta, **enrichment_clean}
+            book_id = spine_detection["book_id"]
             detections.append({
                 "book_id": book_id,
                 "bbox": [x1, y1, x2, y2],
-                "confidence": round(float(score), 2),
+                "confidence": spine_detection["confidence"],
                 "crop_path": crop_path,
                 "metadata": combined_meta
             })
 
+        upload_tasks[image_id]["message"] = "Grouping books into shelves..."
         shelf_mapped_books = group_books_into_shelves(detections, original_image_height)
-
-        image_key = base
-        processed_images_cache[image_key] = shelf_mapped_books
-        logger.info(f"Processed image '{image_key}' stored in cache.")
-
-        return JSONResponse({
-            "image_id": image_key,
-            "status": "success",
-            "shelves": shelf_mapped_books
-        })
+        processed_images_cache[image_id] = shelf_mapped_books
+        
+        final_message = f"Processing complete. Found {len(detections)} books on {len(shelf_mapped_books)} shelves."
+        upload_tasks[image_id].update({"status": "completed", "message": final_message})
+        logger.info(f"Image processing for task {image_id} completed successfully.")
 
     except ValueError as ve:
-        logger.error(f"Preprocess error: {ve}")
-        raise HTTPException(status_code=400, detail=str(ve))
+        error_message = f"Processing failed: {ve}"
+        logger.error(error_message)
+        upload_tasks[image_id].update({"status": "failed", "message": error_message, "error": str(ve)})
     except Exception as e:
-        logger.exception(f"Unexpected error during processing: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        logger.exception(f"An error occurred during image processing for task {image_id}: {e}")
+        error_message = "An unexpected error occurred during processing."
+        upload_tasks[image_id].update({"status": "failed", "message": error_message, "error": str(e)})
+
+@router.post("/upload-image/")
+async def upload_image(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+    if file.content_type.split('/')[0] != 'image':
+        raise HTTPException(status_code=415, detail="Unsupported media type")
+
+    image_id = str(uuid.uuid4())
+    contents = await file.read()
+    
+    # Initialize task state immediately
+    upload_tasks[image_id] = {
+        "status": "queued",
+        "message": "Upload received, task is queued to start.",
+        "filename": file.filename,
+        "cancel": False
+    }
+    
+    background_tasks.add_task(run_image_processing_task, image_id, contents, file.filename)
+    
+    return JSONResponse(
+        status_code=202,
+        content={"message": "Upload accepted and is being processed.", "image_id": image_id}
+    )
