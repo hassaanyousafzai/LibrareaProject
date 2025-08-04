@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from core.tasks_store import upload_tasks
 from core.cache import processed_images_cache
-from services.cleanup import cleanup_task_resources
 from core.logger import get_logger
 
 router = APIRouter()
@@ -38,7 +37,6 @@ async def get_image_upload_status(image_id: str):
 
     if status == "completed":
         result = processed_images_cache.get(image_id)
-        cleanup_task_resources(image_id)
         return {"status": "completed", "result": result}
     
     if status == "processing":

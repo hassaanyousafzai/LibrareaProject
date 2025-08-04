@@ -195,13 +195,13 @@ async def upload_image(background_tasks: BackgroundTasks, file: UploadFile = Fil
     img = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
     
     if img is None:
-        raise HTTPException(status_code=415, message="Unsupported file format")
+        raise HTTPException(status_code=415, detail="Unsupported file format")
 
     is_blurred, fft_score = is_image_blurred(img)
     if is_blurred:
         raise HTTPException(
             status_code=400, 
-            message=f"The image is too blurry to process (FFT score: {fft_score:.2f})"
+            detail=f"The image is too blurry to process. Please try uploading a clearer image."
         )
 
     image_id = str(uuid.uuid4())

@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 from core.models import OrganizeRequest
 from core.logger import get_logger
 from core.cache import processed_images_cache
@@ -37,15 +38,10 @@ async def organize_shelf(request: OrganizeRequest):
     total_shelves = len(current_shelf_layout)
 
     if shelf_number is not None:
-        if shelf_number <= 0:
+        if shelf_number <= 0 or shelf_number > total_shelves:
             raise HTTPException(
                 status_code=400,
-                detail=f"Invalid shelf_number. Shelf number must be a positive integer. This image has {total_shelves} shelves."
-            )
-        if shelf_number > total_shelves:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid shelf_number. Shelf number {shelf_number} is out of range. This image has {total_shelves} shelves."
+                detail=f"Invalid shelf number. Please enter a number between 1 and {total_shelves}."
             )
 
     valid_sort_by = ["author", "title", "genre", "height"]

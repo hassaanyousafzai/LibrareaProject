@@ -7,7 +7,7 @@ load_dotenv()
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
 MODEL_PATH = os.getenv(
     "YOLO_MODEL_PATH",
-    "../runs/detect/librarea_yolov11_run/weights/best.pt"
+    "../runs/detect/best.pt"
 )
 MAX_SMALL_DIM = 1200
 CONFIDENCE_THRESHOLD = float(os.getenv("YOLO_CONF", 0.4))

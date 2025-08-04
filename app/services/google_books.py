@@ -48,13 +48,35 @@ def enrich_book_metadata(title: str, author: str, series_name: str, crop_name: s
         return enrichment
     
     try:
-        # First attempt: Precise search with both title and author
+        found_author = author.strip() if author and author.strip() else None
+        # If author is missing, try to find it using book name and series name
+        if not found_author:
+            # Try with book name + series name if series_name is present
+            if series_name and series_name.strip():
+                author_query = f'intitle:"{title.strip()}"+inseries:"{series_name.strip()}"'
+            else:
+                author_query = f'intitle:"{title.strip()}"'
+            gb_url = "https://www.googleapis.com/books/v1/volumes"
+            gb_params = {
+                "q": author_query,
+                "key": GOOGLE_BOOKS_API_KEY,
+                "maxResults": 5,
+                "fields": "items(volumeInfo(title,authors))"
+            }
+            gb_resp = requests.get(gb_url, params=gb_params)
+            gb_resp.raise_for_status()
+            gb_data = gb_resp.json()
+            best_match_info = None
+            if gb_data.get("items"):
+                best_match_info = get_best_match(title, "", gb_data["items"])
+            if best_match_info:
+                api_authors = best_match_info.get("authors", [])
+                found_author = " & ".join(api_authors) if api_authors else None
+        # Now, use found_author (if any) to enrich metadata
         query_parts = [f'intitle:"{title.strip()}"']
-        if author and author.strip():
-            query_parts.append(f'inauthor:"{author.strip()}"')
-            
+        if found_author:
+            query_parts.append(f'inauthor:"{found_author}"')
         gb_query = "+".join(query_parts)
-        
         gb_url = "https://www.googleapis.com/books/v1/volumes"
         gb_params = {
             "q": gb_query,
@@ -62,27 +84,21 @@ def enrich_book_metadata(title: str, author: str, series_name: str, crop_name: s
             "maxResults": 5,
             "fields": "items(volumeInfo(title,authors,publishedDate,categories,industryIdentifiers))"
         }
-            
         gb_resp = requests.get(gb_url, params=gb_params)
         gb_resp.raise_for_status()
         gb_data = gb_resp.json()
-
         best_match_info = None
         if gb_data.get("items"):
-            best_match_info = get_best_match(title, author, gb_data["items"])
-        
+            best_match_info = get_best_match(title, found_author or author, gb_data["items"])
         # Fallback: If no confident match, search by title only
         if not best_match_info:
             title_only_query = f'intitle:"{title.strip()}"'
             gb_params["q"] = title_only_query
-            
             gb_resp = requests.get(gb_url, params=gb_params)
             gb_resp.raise_for_status()
             gb_data = gb_resp.json()
-
             if gb_data.get("items"):
-                best_match_info = get_best_match(title, author, gb_data["items"])
-
+                best_match_info = get_best_match(title, found_author or author, gb_data["items"])
         if best_match_info:
             published_date_raw = best_match_info.get("publishedDate")
             year_published = None
@@ -93,34 +109,27 @@ def enrich_book_metadata(title: str, author: str, series_name: str, crop_name: s
                         year_published = int(match.group(1))
                     except ValueError:
                         pass
-
             raw_genres = best_match_info.get("categories", [])
             processed_genres = []
             if raw_genres:
                 for genre_item in raw_genres:
                     sub_genres = [g.strip() for g in genre_item.replace('/', ',').split(',')]
                     processed_genres.extend(sub_genres)
-            
             unique_genres = sorted(list(set(g for g in processed_genres if g)))
-
             isbn_list = []
             identifiers = best_match_info.get("industryIdentifiers", [])
             if identifiers:
                 for ident in identifiers:
                     if ident.get("type") in ("ISBN_10", "ISBN_13"):
                         isbn_list.append(ident["identifier"])
-            
             api_authors = best_match_info.get("authors", [])
             author_from_api = " & ".join(api_authors) if api_authors else None
-
             enrichment.update({
                 "year_published": year_published,
                 "genre": unique_genres[:5],
                 "isbn": isbn_list,
                 "author_from_api": author_from_api
             })
-
     except Exception as e:
         logger.exception(f"[GOOGLE_BOOKS] API failed for {crop_name}: {e}")
-    
     return enrichment

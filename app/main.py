@@ -4,9 +4,10 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-from api import upload, organize, task_manager, status
+from api import upload, organize, task_manager
 from services.yolo import load_yolo_model
 from core.logger import get_logger
+from fastapi.exceptions import RequestValidationError
 
 logger = get_logger(__name__)
 
@@ -19,6 +20,30 @@ async def lifespan(app: FastAPI):
     logger.info("Application shutdown.")
 
 app = FastAPI(lifespan=lifespan)
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    # Try to extract total_shelves from the request body if possible
+    try:
+        body = await request.json()
+        image_id = body.get("image_id")
+        from core.cache import processed_images_cache
+        cached_data = processed_images_cache.get(image_id)
+        total_shelves = len(cached_data) if cached_data else None
+    except Exception:
+        total_shelves = None
+    if total_shelves == 1:
+        range_msg = "1"
+    elif total_shelves:
+        range_msg = f"between 1 and {total_shelves}"
+    else:
+        range_msg = "a positive integer (e.g., 1, 2, 3)"
+    return JSONResponse(
+        status_code=400,
+        content={
+            "detail": f"Invalid shelf format. Shelf number must be {range_msg}."
+        },
+    )
 
 @app.middleware("http")
 async def check_duplicate_json_keys_middleware(request: Request, call_next):
@@ -69,7 +94,6 @@ app.add_middleware(
 app.include_router(upload.router)
 app.include_router(organize.router)
 app.include_router(task_manager.router)
-app.include_router(status.router)
 
 if __name__ == "__main__":
     uvicorn.run(app, port=8000)
