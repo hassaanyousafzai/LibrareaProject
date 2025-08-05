@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
 from typing import List, Dict, Any, Tuple
-from core.config import MAX_SMALL_DIM, SPINE_MIN_ASPECT_RATIO, SPINE_MAX_WIDTH_RATIO, SPINE_MIN_HEIGHT_RATIO
+from core.config import (MAX_SMALL_DIM, SPINE_MIN_ASPECT_RATIO, SPINE_MAX_WIDTH_RATIO, 
+                          SPINE_MIN_HEIGHT_RATIO, SPINE_MIN_WIDTH_PX)
 from core.logger import get_logger
 
 logger = get_logger(__name__)
@@ -99,19 +100,23 @@ def is_likely_book_spine(bbox: List[float], image_width: int, image_height: int,
     width = x2 - x1
     height = y2 - y1
     
-    if width <= 0:
-        return False, "Invalid width"
-    
+    if width <= 0 or height <= 0:
+        return False, "Invalid width or height"
+
+    # Check minimum width first - if spine is too narrow, text won't be readable
+    if width < SPINE_MIN_WIDTH_PX:
+        return False, f"Too narrow ({width}px < {SPINE_MIN_WIDTH_PX}px minimum)"
+
     aspect_ratio = height / width
     width_ratio = width / image_width
     height_ratio = height / image_height
-    
+
     if aspect_ratio < min_aspect_ratio:
         return False, f"Low aspect ratio ({aspect_ratio:.2f} < {min_aspect_ratio})"
-    
+
     if width_ratio > max_width_ratio:
         return False, f"Too wide ({width_ratio:.2f} > {max_width_ratio})"
-    
+
     if height_ratio < min_height_ratio:
         return False, f"Too short ({height_ratio:.2f} < {min_height_ratio})"
     

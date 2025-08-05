@@ -17,6 +17,7 @@ GOOGLE_BOOKS_API_KEY = os.getenv("GOOGLE_BOOKS_API_KEY")
 SPINE_MIN_ASPECT_RATIO = float(os.getenv("SPINE_MIN_ASPECT_RATIO", 2.5))  # height/width ratio
 SPINE_MAX_WIDTH_RATIO = float(os.getenv("SPINE_MAX_WIDTH_RATIO", 0.95))   # width/image_width ratio
 SPINE_MIN_HEIGHT_RATIO = float(os.getenv("SPINE_MIN_HEIGHT_RATIO", 0.1))  # height/image_height ratio
+SPINE_MIN_WIDTH_PX = int(os.getenv("SPINE_MIN_WIDTH_PX", 30))  # minimum width in pixels for readability
 
 # Ensure upload directory exists
 os.makedirs(UPLOAD_DIR, exist_ok=True)
