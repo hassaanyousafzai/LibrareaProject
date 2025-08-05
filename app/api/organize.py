@@ -5,6 +5,7 @@ from core.models import OrganizeRequest
 from core.logger import get_logger
 from core.cache import processed_images_cache
 from typing import Any
+import uuid
 
 router = APIRouter()
 logger = get_logger(__name__)
@@ -19,8 +20,18 @@ async def organize_shelf(request: OrganizeRequest):
     shelf_number = request.shelf_number
     sort_order = request.sort_order
 
+    # Step 1: Validate that the image_id string is in a valid UUID format.
+    try:
+        uuid.UUID(image_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"The image_id '{image_id}' is not a valid UUID. Please provide a correctly formatted ID."
+        )
+
+    # Step 2: Now that the format is valid, check if the data exists in the cache.
     if image_id not in processed_images_cache:
-        raise HTTPException(status_code=404, detail="Image data not found. Please upload the image first.")
+        raise HTTPException(status_code=404, detail="Image data not found for the provided ID. Please upload the image or check the ID for typos.")
 
     cached_data = processed_images_cache[image_id]
     
@@ -38,11 +49,22 @@ async def organize_shelf(request: OrganizeRequest):
     total_shelves = len(current_shelf_layout)
 
     if shelf_number is not None:
-        if shelf_number <= 0 or shelf_number > total_shelves:
+        if shelf_number <= 0:
             raise HTTPException(
                 status_code=400,
-                detail=f"Invalid shelf number. Please enter a number between 1 and {total_shelves}."
+                detail="Shelf number cannot be less than 1. Please enter a valid shelf number."
             )
+        elif shelf_number > total_shelves:
+            if total_shelves == 1:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Shelf number cannot be greater than the number of shelves in the image (1). Please enter 1."
+                )
+            else:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Shelf number cannot be greater than the number of shelves in the image ({total_shelves}). Please enter a number from 1 to {total_shelves}."
+                )
 
     valid_sort_by = ["author", "title", "genre", "height"]
     valid_sort_order = ["asc", "desc"]

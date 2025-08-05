@@ -1,6 +1,6 @@
 import json
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -23,26 +23,46 @@ app = FastAPI(lifespan=lifespan)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    # Try to extract total_shelves from the request body if possible
+    """
+    Handles Pydantic validation errors to return simple, user-friendly messages.
+    """
     try:
-        body = await request.json()
-        image_id = body.get("image_id")
-        from core.cache import processed_images_cache
-        cached_data = processed_images_cache.get(image_id)
-        total_shelves = len(cached_data) if cached_data else None
-    except Exception:
-        total_shelves = None
-    if total_shelves == 1:
-        range_msg = "1"
-    elif total_shelves:
-        range_msg = f"between 1 and {total_shelves}"
+        error = exc.errors()[0]
+    except IndexError:
+        return JSONResponse(
+            status_code=422,
+            content={"detail": "Validation error with unknown structure."},
+        )
+
+    error_type = error.get("type")
+    
+    if error_type == 'json_invalid':
+        parser_message = error.get('msg')
+        detailed_message = f"Invalid JSON syntax: {parser_message}. Please correct the formatting and try again."
+        return JSONResponse(status_code=400, content={"detail": detailed_message})
+
+    # Proceed with field-specific errors
+    field = error.get("loc", ["body", "unknown"])[-1]
+
+    # Define valid values for suggestion messages
+    valid_sort_by = ["author", "title", "genre", "height"]
+    valid_sort_order = ["asc", "desc"]
+
+    if field == 'sort_by':
+        detailed_message = f"The 'sort_by' field cannot be empty. It must be one of: {', '.join(valid_sort_by)}."
+    elif field == 'sort_order':
+        detailed_message = f"The 'sort_order' field cannot be empty. It must be 'asc' or 'desc'."
+    elif field == 'image_id':
+        detailed_message = "The 'image_id' field is required and cannot be empty."
+    elif field == 'shelf_number':
+        detailed_message = "The 'shelf_number' must be a valid integer and cannot be empty."
     else:
-        range_msg = "a positive integer (e.g., 1, 2, 3)"
+        # Fallback for any other validation error
+        detailed_message = f"There was an error with the '{field}' field: {error.get('msg')}"
+
     return JSONResponse(
-        status_code=400,
-        content={
-            "detail": f"Invalid shelf format. Shelf number must be {range_msg}."
-        },
+        status_code=422,  # Unprocessable Entity
+        content={"detail": detailed_message},
     )
 
 @app.middleware("http")
@@ -61,13 +81,11 @@ async def check_duplicate_json_keys_middleware(request: Request, call_next):
                 seen_keys = {}
                 for key, value in pairs:
                     if key in seen_keys:
-                        # If key is already seen, check if the value is different
                         if seen_keys[key] != value:
                             return JSONResponse(
                                 status_code=400,
                                 content={"detail": f"Duplicate key '{key}' found with conflicting values."}
                             )
-                        # If values are the same, it's still a duplicate key scenario
                         return JSONResponse(
                             status_code=400,
                             content={"detail": f"Duplicate key found in JSON body: {key}"}
@@ -75,7 +93,6 @@ async def check_duplicate_json_keys_middleware(request: Request, call_next):
                     seen_keys[key] = value
 
             except json.JSONDecodeError:
-                # Let FastAPI's built-in validation handle malformed JSON
                 pass
 
     response = await call_next(request)
