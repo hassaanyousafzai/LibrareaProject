@@ -241,7 +241,7 @@ def enrich_book_metadata(title: str, author: str, series_name: str, crop_name: s
             api_title = best_match_info.get("title", "")
             logger.info(f"[GOOGLE_BOOKS] Final match for {crop_name}: '{api_title}' by '{author_from_api}' (year: {year_published})")
             enrichment.update({
-                "year_published": year_published,
+                    "year_published": year_published,
                 "genre": unique_genres[:5],
                 "isbn": isbn_list,
                 "author_from_api": author_from_api

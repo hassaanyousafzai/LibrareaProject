@@ -255,38 +255,72 @@ def preprocess_multi_scale(image_bytes: bytes):
     img_small_norm = img_small.astype(np.float32) / 255.0
     return img_full_norm, img_small_norm, scale
 
-def group_books_into_shelves(books_data: list, original_image_height: int, vertical_proximity_threshold_ratio: float = 0.08) -> List[Dict[str, Any]]:
+def group_books_into_shelves(books_data: list, original_image_height: int, vertical_proximity_threshold_ratio: float = None) -> List[Dict[str, Any]]:
     """
-    Groups books into shelves based on their vertical proximity.
+    Groups books into shelves based on their vertical proximity and alignment.
+    Uses bottom edge alignment and height similarity to determine shelf membership.
     """
     if not books_data:
         return []
 
-    vertical_threshold = original_image_height * vertical_proximity_threshold_ratio
-
-    sorted_books_by_y = sorted(books_data, key=lambda b: (b['bbox'][1] + b['bbox'][3]) / 2)
-
-    shelves = []
-    if not sorted_books_by_y:
-        return []
-
-    current_shelf_books = [sorted_books_by_y[0]]
-
-    for i in range(1, len(sorted_books_by_y)):
-        prev_book = sorted_books_by_y[i-1]
-        current_book = sorted_books_by_y[i]
-
-        prev_center_y = (prev_book['bbox'][1] + prev_book['bbox'][3]) / 2
-        current_center_y = (current_book['bbox'][1] + current_book['bbox'][3]) / 2
-
-        if abs(current_center_y - prev_center_y) < vertical_threshold:
-            current_shelf_books.append(current_book)
+    # Calculate average book height and bottom position
+    heights = []
+    bottom_positions = []
+    for book in books_data:
+        bbox = book['bbox']
+        height = bbox[3] - bbox[1]
+        bottom_y = bbox[3]
+        heights.append(height)
+        bottom_positions.append(bottom_y)
+    
+    avg_height = sum(heights) / len(heights)
+    avg_bottom = sum(bottom_positions) / len(bottom_positions)
+    
+    # Group books that have similar height and bottom alignment
+    height_threshold = avg_height * 0.3  # Allow 30% height variation
+    bottom_threshold = avg_height * 0.2  # Bottom alignment threshold
+    
+    # First pass: identify main shelf characteristics
+    main_shelf_books = []
+    outliers = []
+    
+    for book in books_data:
+        bbox = book['bbox']
+        height = bbox[3] - bbox[1]
+        bottom_y = bbox[3]
+        
+        # Check if book matches typical characteristics
+        height_diff = abs(height - avg_height)
+        bottom_diff = abs(bottom_y - avg_bottom)
+        
+        if height_diff <= height_threshold and bottom_diff <= bottom_threshold:
+            main_shelf_books.append(book)
         else:
-            shelves.append(current_shelf_books)
-            current_shelf_books = [current_book]
-
-    if current_shelf_books:
-        shelves.append(current_shelf_books)
+            # Before marking as outlier, check if it's just slightly misaligned
+            if height_diff <= height_threshold * 1.5:  # More lenient height check
+                main_shelf_books.append(book)
+            else:
+                outliers.append(book)
+    
+    # Sort books by x-coordinate
+    sorted_books = sorted(main_shelf_books, key=lambda b: b['bbox'][0])
+    
+    # If we have outliers but they're clearly part of the sequence, include them
+    if outliers:
+        for outlier in outliers:
+            x_center = (outlier['bbox'][0] + outlier['bbox'][2]) / 2
+            # Find where this book belongs in the sequence
+            insert_idx = 0
+            for i, book in enumerate(sorted_books):
+                book_x_center = (book['bbox'][0] + book['bbox'][2]) / 2
+                if x_center < book_x_center:
+                    insert_idx = i
+                    break
+                insert_idx = i + 1
+            sorted_books.insert(insert_idx, outlier)
+    
+    # Create a single shelf with all books
+    shelves = [sorted_books]
 
     final_shelf_map = []
     for shelf_idx, shelf_books in enumerate(shelves):
