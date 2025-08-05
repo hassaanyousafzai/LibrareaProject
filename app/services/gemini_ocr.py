@@ -8,33 +8,38 @@ logger = get_logger(__name__)
 client = genai.Client()
 
 prompt = """
-You are an expert at extracting book information from spine images. Your task is to identify the AUTHOR, BOOK TITLE, and SERIES NAME.
+You are an expert in extracting book metadata from spine images. Your task is to identify three key elements: "Author", "Book Name", and "Series Name".
 
-EXTRACTION RULES:
-1. AUTHOR: Identify the author's name. Look for it anywhere on the spine, it may be:
-    - At the top, middle, or bottom of the spine.
-    - In small or large text.
-    - Part of series information (e.g., "ERIN HUNTER" in "Warriors" series).
-    - Sometimes abbreviated (first initial + last name).
-    - Multiple authors separated by "and" or "&".
+Please follow these strict rules:
 
-2. BOOK TITLE: Extract the main book title.
-    - May include a subtitle if present after a colon.
-    - Exclude the general series name (e.g., "Warriors") from the book title unless the series name is explicitly part of the unique title (e.g., "The Chronicles of Narnia: The Lion, the Witch, and the Wardrobe").
-    - Include volume numbers if they are an integral part of the title (e.g., "Book One: The Fellowship of the Ring").
+1. AUTHOR:
+- Look for names anywhere on the spine (top, middle, or bottom).
+- Names may be in small text or initials (e.g., "J.K. Rowling").
+- May include multiple authors joined by "and" or "&".
+- Do not infer — extract only visible names.
 
-3. SERIES NAME: Identify the series name.
-    - Look for distinct text identifying a series (e.g., "Warriors", "Harry Potter", "The Chronicles of Narnia").
-    - Return the most prominent or official series name.
-    - Do not include subtitles or volume numbers in the Series Name field.
+2. BOOK NAME:
+- Extract ONLY the actual book title, not captions, series arc names, or promotional text.
+- Look for the most prominent, standalone book title on the spine.
+- EXCLUDE series arc names (e.g., if you see "The Prophecies Begin 2 Fire and Ice", the book name is "Fire and Ice", not the full text).
+- EXCLUDE promotional text, captions, or descriptive phrases that aren't part of the core title.
+- If the actual book title has legitimate subtitles connected by punctuation (e.g., "Harry Potter and the Sorcerer's Stone", "A Storm of Swords: Blood and Gold"), include those as they are part of the official title.
+- When in doubt, choose the shorter, more specific title rather than including extra text.
 
-IMPORTANT CONSIDERATIONS:
-- Carefully scan the ENTIRE image for all relevant text.
-- Author names are often in smaller text than titles.
-- Extract exactly what you see; do not modify, interpret, or infer information not present in the image.
-- If a piece of information (Author, Book Name, or Series Name) is truly not visible on the spine, use an empty string ("") for that field.
+3. SERIES NAME:
+- Look for the PRIMARY brand name only (e.g., "Warriors", "Percy Jackson", "Goosebumps").
+- DO NOT include subtitles, volume info, or descriptive text (use "Warriors" not "Warriors: The Prophecies Begin").
+- DO NOT include phrases like "The Original Series", "Book One", "Volume 1", etc.
+- Extract only the core series brand that would identify all books in that series.
+- If not clearly mentioned, leave as an empty string.
 
-Return ONLY a JSON object with the following fields: "Author", "Book Name", and "Series Name".
+ADDITIONAL INSTRUCTIONS:
+- Read the entire image carefully.
+- Do not guess or infer missing information.
+- If any field is not present, return it as an empty string: "".
+- Output a JSON object with these three keys: "Author", "Book Name", and "Series Name".
+
+Return only the JSON.
 """
 
 generate_content_config = types.GenerateContentConfig(

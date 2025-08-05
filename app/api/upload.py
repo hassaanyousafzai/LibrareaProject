@@ -41,6 +41,42 @@ def is_blank_spine(metadata: dict) -> bool:
     
     return False
 
+def determine_ocr_action(ocr_meta: dict) -> tuple[str, dict]:
+    """
+    Determines what action to take based on OCR results.
+    
+    Returns:
+        tuple: (action, processed_metadata)
+        action can be: "unrecognized", "use_google_books"
+    """
+    title = ocr_meta.get("Book Name", "").strip()
+    author = ocr_meta.get("Author", "").strip()
+    series_name = ocr_meta.get("Series_Name", "").strip()
+    
+    # Check if OCR failed completely or neither title nor author found
+    if not title and not author:
+        return "unrecognized", {
+            "Author": "Unrecognized",
+            "Book Name": "Unrecognized",
+            "Series_Name": series_name
+        }
+    
+    # If Book Name exists, use Google Books API (regardless of Author status)
+    # Google Books will find missing Author if possible
+    if title:
+        return "use_google_books", {
+            "Author": author if author else "",
+            "Book Name": title,
+            "Series_Name": series_name
+        }
+    
+    # Only Author found, no Book Name - don't fill Book Name with anything
+    return "author_only", {
+        "Author": author,
+        "Book Name": "",
+        "Series_Name": series_name
+    }
+
 def run_image_processing_task(image_id: str, contents: bytes, original_filename: str):
     """The main function to be run in the background for processing an uploaded image."""
     
@@ -95,7 +131,12 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
         )
         
         if not spine_detections:
-            no_spines_message = "No book spines were detected in the image."
+            # Provide more helpful feedback based on what was detected
+            if preliminary_detections:
+                no_spines_message = f"Found {len(preliminary_detections)} object(s) in the image, but none were identified as book spines. Please ensure the image shows clear book spines and try again."
+            else:
+                no_spines_message = "No objects were detected in the image. Please ensure the image is clear and contains visible book spines."
+            
             upload_tasks[image_id].update({"status": "completed", "message": no_spines_message})
             processed_images_cache[image_id] = {
                 "message": no_spines_message,
@@ -144,18 +185,43 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
                 crop_bytes = img_f.read()
             
             ocr_meta = get_book_metadata_from_spine(crop_bytes, crop_name)
-            title = ocr_meta.get("Book Name") or ""
-            author = ocr_meta.get("Author") or ""
-            series_name = ocr_meta.get("Series_Name") or ""
             
-            upload_tasks[image_id]["message"] = f"Enriching metadata for spine {idx} of {total_spines}..."
-            enrichment = enrich_book_metadata(title, author, series_name, crop_name)
-
-            if (not author or author.strip() == "") and enrichment.get("author_from_api"):
-                ocr_meta["Author"] = enrichment["author_from_api"]
-
-            enrichment_clean = {k: v for k, v in enrichment.items() if k != "author_from_api"}
-            combined_meta = {**ocr_meta, **enrichment_clean}
+            # Determine action based on OCR results
+            action, processed_meta = determine_ocr_action(ocr_meta)
+            
+            if action == "unrecognized":
+                # OCR failed completely or found neither title nor author
+                upload_tasks[image_id]["message"] = f"OCR could not recognize spine {idx} of {total_spines}..."
+                combined_meta = processed_meta
+                logger.info(f"[DEBUG] Spine {crop_name} marked as unrecognized - no Google Books API call")
+                
+            elif action == "author_only":
+                # OCR found only author, no book name - don't use Google Books API
+                upload_tasks[image_id]["message"] = f"OCR found author only for spine {idx} of {total_spines}..."
+                combined_meta = processed_meta
+                logger.info(f"[DEBUG] Spine {crop_name} has author only - no Google Books API call")
+                
+            else:  # action == "use_google_books"
+                # OCR found book name (with or without author) - use Google Books API
+                title = processed_meta["Book Name"]
+                author = processed_meta["Author"]
+                series_name = processed_meta["Series_Name"]
+                
+                upload_tasks[image_id]["message"] = f"Enriching metadata for spine {idx} of {total_spines}..."
+                enrichment = enrich_book_metadata(title, author, series_name, crop_name)
+                
+                # Use author from Google Books API if OCR didn't find one
+                final_author = author if author else enrichment.get("author_from_api", "")
+                
+                # Combine OCR results with Google Books enrichment
+                enrichment_clean = {k: v for k, v in enrichment.items() if k != "author_from_api"}
+                combined_meta = {
+                    "Author": final_author,
+                    "Book Name": title,
+                    "Series_Name": series_name,
+                    **enrichment_clean
+                }
+                logger.info(f"[DEBUG] Spine {crop_name} enriched with Google Books API - Author: '{final_author}'")
             
             if is_blank_spine(combined_meta):
                 filtered_blank_spines += 1
@@ -190,6 +256,13 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
 @router.post("/upload-image/")
 async def upload_image(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
     contents = await file.read()
+    # Add file size check (10MB = 10 * 1024 * 1024 bytes)
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+    if len(contents) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=413,  # Payload Too Large
+            detail="The uploaded image exceeds the 10MB size limit. Please upload a smaller image."
+        )
     
     image_array = np.frombuffer(contents, np.uint8)
     img = cv2.imdecode(image_array, cv2.IMREAD_COLOR)

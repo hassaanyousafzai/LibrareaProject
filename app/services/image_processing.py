@@ -81,16 +81,19 @@ def is_image_blurred(image: np.ndarray, threshold: float = 20.0, size: int = 60)
 
 def is_likely_book_spine(bbox: List[float], image_width: int, image_height: int, 
                         min_aspect_ratio: float = None, max_width_ratio: float = None, 
-                        min_height_ratio: float = None) -> Tuple[bool, str]:
+                        min_height_ratio: float = None, is_single_book_context: bool = False) -> Tuple[bool, str]:
     """
     Determines if a detected bounding box is likely a book spine.
+    For single book images, uses more relaxed criteria.
     """
     if min_aspect_ratio is None:
-        min_aspect_ratio = SPINE_MIN_ASPECT_RATIO
+        # More relaxed aspect ratio for single books
+        min_aspect_ratio = 1.5 if is_single_book_context else SPINE_MIN_ASPECT_RATIO
     if max_width_ratio is None:
         max_width_ratio = SPINE_MAX_WIDTH_RATIO
     if min_height_ratio is None:
-        min_height_ratio = SPINE_MIN_HEIGHT_RATIO
+        # More relaxed height requirement for single books
+        min_height_ratio = 0.05 if is_single_book_context else SPINE_MIN_HEIGHT_RATIO
     
     x1, y1, x2, y2 = bbox
     width = x2 - x1
@@ -112,7 +115,8 @@ def is_likely_book_spine(bbox: List[float], image_width: int, image_height: int,
     if height_ratio < min_height_ratio:
         return False, f"Too short ({height_ratio:.2f} < {min_height_ratio})"
     
-    return True, f"Valid spine (AR: {aspect_ratio:.2f}, W: {width_ratio:.2f}, H: {height_ratio:.2f})"
+    context_note = " (single book context)" if is_single_book_context else ""
+    return True, f"Valid spine (AR: {aspect_ratio:.2f}, W: {width_ratio:.2f}, H: {height_ratio:.2f}){context_note}"
 
 def analyze_text_orientation(crop_image: np.ndarray) -> Tuple[str, float]:
     """
@@ -166,9 +170,13 @@ def analyze_text_orientation(crop_image: np.ndarray) -> Tuple[str, float]:
 def filter_spine_detections(detections: List[Dict], image_width: int, image_height: int) -> Tuple[List[Dict], List[Dict]]:
     """
     Filters detections to separate likely spines from non-spine objects.
+    Uses relaxed criteria if only 1-2 detections exist (single book scenario).
     """
     spine_detections = []
     rejected_detections = []
+    
+    # Determine if this is likely a single book scenario
+    is_single_book_context = len(detections) <= 2
     
     for detection in detections:
         bbox = detection.get('bbox', [])
@@ -179,7 +187,8 @@ def filter_spine_detections(detections: List[Dict], image_width: int, image_heig
             })
             continue
         
-        is_spine, reason = is_likely_book_spine(bbox, image_width, image_height)
+        is_spine, reason = is_likely_book_spine(bbox, image_width, image_height, 
+                                               is_single_book_context=is_single_book_context)
         
         if is_spine:
             spine_detections.append(detection)
@@ -188,6 +197,35 @@ def filter_spine_detections(detections: List[Dict], image_width: int, image_heig
                 **detection,
                 'rejection_reason': reason
             })
+    
+    # If we still have no spine detections in a single book context, 
+    # try with the most confident detection using very relaxed criteria
+    if not spine_detections and is_single_book_context and detections:
+        logger.info("No spines detected in single book context, trying with relaxed criteria...")
+        
+        # Get the most confident detection
+        best_detection = max(detections, key=lambda d: float(d.get('confidence', '0%').rstrip('%')))
+        bbox = best_detection.get('bbox', [])
+        
+        if len(bbox) == 4:
+            # Very relaxed criteria for single books
+            x1, y1, x2, y2 = bbox
+            width = x2 - x1
+            height = y2 - y1
+            aspect_ratio = height / width if width > 0 else 0
+            width_ratio = width / image_width
+            height_ratio = height / image_height
+            
+            # Accept if it looks remotely book-like
+            if (aspect_ratio >= 1.0 and  # At least as tall as wide
+                width_ratio <= 0.98 and  # Not the entire image width
+                height_ratio >= 0.03):   # At least 3% of image height
+                
+                spine_detections.append(best_detection)
+                # Remove from rejected if it was there
+                rejected_detections = [r for r in rejected_detections 
+                                     if r.get('book_id') != best_detection.get('book_id')]
+                logger.info(f"Accepted detection with relaxed criteria: AR={aspect_ratio:.2f}, W={width_ratio:.2f}, H={height_ratio:.2f}")
     
     return spine_detections, rejected_detections
 
