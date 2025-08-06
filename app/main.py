@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from api import upload, organize, task_manager
 from services.yolo import load_yolo_model
-from core.logger import get_logger, logger
+from core.logger import get_logger
 from fastapi.exceptions import RequestValidationError
 
 logger = get_logger(__name__)

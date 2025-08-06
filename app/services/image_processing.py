@@ -4,7 +4,7 @@ from typing import List, Dict, Any, Tuple
 from core.config import (MAX_SMALL_DIM, SPINE_MIN_ASPECT_RATIO, SPINE_MAX_WIDTH_RATIO,
                           SPINE_MIN_HEIGHT_RATIO, SPINE_MIN_WIDTH_PX, SPINE_MIN_HORIZONTAL_ASPECT_RATIO,
                           SPINE_MAX_HEIGHT_RATIO, SPINE_MIN_WIDTH_RATIO, SHELF_BOUNDARY_PADDING,
-                          SHELF_MIN_VERTICAL_BOOKS, SHELF_CENTER_TOLERANCE)
+                          SHELF_MIN_VERTICAL_BOOKS, SHELF_CENTER_TOLERANCE, HORIZONTAL_BOOK_TOLERANCE_MULTIPLIER)
 from core.logger import get_logger
 
 logger = get_logger(__name__)
@@ -278,47 +278,66 @@ def preprocess_multi_scale(image_bytes: bytes):
 
 def determine_shelf_boundaries(books_data: list, original_image_height: int) -> List[Tuple[float, float]]:
     """
-    First pass: Use vertical books to establish shelf boundaries.
+    Enhanced shelf boundary detection that considers both vertical and horizontal books.
     Returns list of shelf ranges [(top1, bottom1), (top2, bottom2), ...] sorted top to bottom.
     """
     # Separate vertical and horizontal books
     vertical_books = []
+    horizontal_books = []
+    
     for book in books_data:
         bbox = book['bbox']
         height = bbox[3] - bbox[1]
         width = bbox[2] - bbox[0]
-        if height > width:  # Vertical book
-            vertical_books.append({
+        book_info = {
                 'book': book,
                 'top': bbox[1],
                 'bottom': bbox[3],
                 'center': (bbox[1] + bbox[3]) / 2
-            })
+        }
+        
+        if height > width:  # Vertical book
+            vertical_books.append(book_info)
+        else:  # Horizontal book
+            horizontal_books.append(book_info)
     
+    # If no vertical books, use horizontal books to establish boundaries
     if not vertical_books:
-        # If no vertical books, treat all books as one shelf
-        all_tops = [book['bbox'][1] for book in books_data]
-        all_bottoms = [book['bbox'][3] for book in books_data]
-        return [(min(all_tops), max(all_bottoms))]
+        if not horizontal_books:
+            return []
+        # Use horizontal books only - group them by proximity
+        all_books = horizontal_books
+    else:
+        # Use vertical books as primary reference, but include horizontal books for validation
+        all_books = vertical_books
     
-    # Sort vertical books by their center point (top to bottom)
-    vertical_books.sort(key=lambda x: x['center'])
+    if not all_books:
+        return []
+    
+    # Sort books by their center point (top to bottom)
+    all_books.sort(key=lambda x: x['center'])
     
     # Initialize boundaries with the first book
-    current_shelf_top = vertical_books[0]['top']
-    current_shelf_bottom = vertical_books[0]['bottom']
-    current_shelf_books = [vertical_books[0]]
+    current_shelf_top = all_books[0]['top']
+    current_shelf_bottom = all_books[0]['bottom']
+    current_shelf_books = [all_books[0]]
     shelf_boundaries = []
     
-    # Group vertical books into shelves
-    for book in vertical_books[1:]:
+    # Group books into shelves
+    for book in all_books[1:]:
         # Check if this book belongs to current shelf
         vertical_gap = book['top'] - current_shelf_bottom
         shelf_height = current_shelf_bottom - current_shelf_top
         
-        if vertical_gap > shelf_height * SHELF_BOUNDARY_PADDING:
+        # Use smaller gap threshold for horizontal books as they're typically closer to shelf edges
+        gap_threshold = shelf_height * SHELF_BOUNDARY_PADDING
+        if not vertical_books:  # Only horizontal books - use tighter clustering
+            gap_threshold = shelf_height * 0.3  # Reduced threshold for horizontal-only detection
+        
+        if vertical_gap > gap_threshold:
             # If we have enough books in the current shelf, add it
-            if len(current_shelf_books) >= SHELF_MIN_VERTICAL_BOOKS:
+            min_books_threshold = SHELF_MIN_VERTICAL_BOOKS if vertical_books else 1  # Allow single horizontal book shelves
+            if len(current_shelf_books) >= min_books_threshold:
                 # Add padding to boundaries
                 padding = shelf_height * SHELF_BOUNDARY_PADDING
                 shelf_boundaries.append((
@@ -335,7 +354,8 @@ def determine_shelf_boundaries(books_data: list, original_image_height: int) -> 
             current_shelf_books.append(book)
     
     # Add the last shelf if it has enough books
-    if len(current_shelf_books) >= SHELF_MIN_VERTICAL_BOOKS:
+    min_books_threshold = SHELF_MIN_VERTICAL_BOOKS if vertical_books else 1
+    if len(current_shelf_books) >= min_books_threshold:
         shelf_height = current_shelf_bottom - current_shelf_top
         padding = shelf_height * SHELF_BOUNDARY_PADDING
         shelf_boundaries.append((
@@ -343,20 +363,56 @@ def determine_shelf_boundaries(books_data: list, original_image_height: int) -> 
             current_shelf_bottom + padding
         ))
     
+    # Second pass: Refine boundaries by including horizontal books if we used vertical books primarily
+    if vertical_books and horizontal_books:
+        refined_boundaries = []
+        for top, bottom in shelf_boundaries:
+            # Find horizontal books that fall within this shelf range
+            shelf_horizontal_books = [
+                hb for hb in horizontal_books 
+                if top <= hb['center'] <= bottom
+            ]
+            
+            # If we have horizontal books in this range, potentially adjust boundaries
+            if shelf_horizontal_books:
+                all_tops = [top] + [hb['top'] for hb in shelf_horizontal_books]
+                all_bottoms = [bottom] + [hb['bottom'] for hb in shelf_horizontal_books]
+                
+                # Expand boundaries to include horizontal books, but don't shrink existing boundaries
+                adjusted_top = min(all_tops)
+                adjusted_bottom = max(all_bottoms)
+                refined_boundaries.append((adjusted_top, adjusted_bottom))
+            else:
+                refined_boundaries.append((top, bottom))
+        
+        shelf_boundaries = refined_boundaries
+    
+    logger.info(f"[SHELF_DETECTION] Detected {len(shelf_boundaries)} shelves using {len(vertical_books)} vertical and {len(horizontal_books)} horizontal books")
+    
     return shelf_boundaries
 
 def assign_book_to_shelf(book: Dict, shelf_boundaries: List[Tuple[float, float]]) -> int:
     """
-    Assigns a book to a shelf based on its center point.
+    Assigns a book to a shelf based on its center point with enhanced logic for horizontal books.
     Returns shelf index (0-based) or -1 if no shelf found.
     """
     bbox = book['bbox']
     book_center = (bbox[1] + bbox[3]) / 2  # Vertical center
+    book_height = bbox[3] - bbox[1]
+    book_width = bbox[2] - bbox[0]
+    is_horizontal = book_width > book_height
+    
+    # For horizontal books, use more flexible tolerance
+    base_tolerance = SHELF_CENTER_TOLERANCE
+    if is_horizontal:
+        # Horizontal books often sit at shelf edges, so use increased tolerance
+        base_tolerance = SHELF_CENTER_TOLERANCE * HORIZONTAL_BOOK_TOLERANCE_MULTIPLIER
     
     for idx, (shelf_top, shelf_bottom) in enumerate(shelf_boundaries):
         shelf_height = shelf_bottom - shelf_top
         # Add tolerance to shelf boundaries
-        tolerance = shelf_height * SHELF_CENTER_TOLERANCE
+        tolerance = shelf_height * base_tolerance
+        
         if (shelf_top - tolerance) <= book_center <= (shelf_bottom + tolerance):
             return idx
     
@@ -366,8 +422,27 @@ def assign_book_to_shelf(book: Dict, shelf_boundaries: List[Tuple[float, float]]
         for idx, (shelf_top, shelf_bottom) in enumerate(shelf_boundaries):
             shelf_center = (shelf_top + shelf_bottom) / 2
             distance = abs(book_center - shelf_center)
+            
+            # For horizontal books, also consider overlap with shelf boundaries
+            if is_horizontal:
+                book_top = bbox[1]
+                book_bottom = bbox[3]
+                
+                # Check if any part of the horizontal book overlaps with shelf boundaries
+                overlap_top = max(book_top, shelf_top)
+                overlap_bottom = min(book_bottom, shelf_bottom)
+                overlap = max(0, overlap_bottom - overlap_top)
+                
+                # If there's significant overlap, reduce the distance score
+                overlap_ratio = overlap / book_height if book_height > 0 else 0
+                if overlap_ratio > 0.3:  # 30% overlap threshold
+                    distance = distance * (1 - overlap_ratio * 0.5)  # Reduce distance by up to 50%
+            
             distances.append((distance, idx))
-        return min(distances, key=lambda x: x[0])[1]
+        
+        closest_shelf = min(distances, key=lambda x: x[0])[1]
+        logger.info(f"[BOOK_ASSIGNMENT] Book {book.get('book_id', 'unknown')} ({'horizontal' if is_horizontal else 'vertical'}) assigned to closest shelf {closest_shelf + 1}")
+        return closest_shelf
     
     return -1
 

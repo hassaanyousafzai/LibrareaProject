@@ -31,6 +31,7 @@ SPINE_MIN_WIDTH_PX = int(os.getenv("SPINE_MIN_WIDTH_PX", 30))  # minimum width i
 SHELF_BOUNDARY_PADDING = float(os.getenv("SHELF_BOUNDARY_PADDING", 0.1))  # 10% padding for shelf boundaries
 SHELF_MIN_VERTICAL_BOOKS = int(os.getenv("SHELF_MIN_VERTICAL_BOOKS", 3))  # minimum vertical books to establish a shelf
 SHELF_CENTER_TOLERANCE = float(os.getenv("SHELF_CENTER_TOLERANCE", 0.2))  # 20% tolerance for book center point placement
+HORIZONTAL_BOOK_TOLERANCE_MULTIPLIER = float(os.getenv("HORIZONTAL_BOOK_TOLERANCE_MULTIPLIER", 1.5))  # increased tolerance for horizontal books
 
 # Ensure upload directory exists
 os.makedirs(UPLOAD_DIR, exist_ok=True)
