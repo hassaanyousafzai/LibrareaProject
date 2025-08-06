@@ -4,7 +4,8 @@ from typing import List, Dict, Any, Tuple
 from core.config import (MAX_SMALL_DIM, SPINE_MIN_ASPECT_RATIO, SPINE_MAX_WIDTH_RATIO,
                           SPINE_MIN_HEIGHT_RATIO, SPINE_MIN_WIDTH_PX, SPINE_MIN_HORIZONTAL_ASPECT_RATIO,
                           SPINE_MAX_HEIGHT_RATIO, SPINE_MIN_WIDTH_RATIO, SHELF_BOUNDARY_PADDING,
-                          SHELF_MIN_VERTICAL_BOOKS, SHELF_CENTER_TOLERANCE, HORIZONTAL_BOOK_TOLERANCE_MULTIPLIER)
+                          SHELF_MIN_VERTICAL_BOOKS, SHELF_CENTER_TOLERANCE, HORIZONTAL_BOOK_TOLERANCE_MULTIPLIER,
+                          SHELF_RANGES, HORIZONTAL_ASPECT_RATIO, HORIZONTAL_OVERLAP_THRESHOLD)
 from core.logger import get_logger
 
 logger = get_logger(__name__)
@@ -393,24 +394,86 @@ def determine_shelf_boundaries(books_data: list, original_image_height: int) -> 
 
 def assign_book_to_shelf(book: Dict, shelf_boundaries: List[Tuple[float, float]]) -> int:
     """
-    Assigns a book to a shelf based on its center point with enhanced logic for horizontal books.
+    Assigns a book to a shelf based on its position with enhanced logic for horizontal books.
     Returns shelf index (0-based) or -1 if no shelf found.
     """
     bbox = book['bbox']
-    book_center = (bbox[1] + bbox[3]) / 2  # Vertical center
-    book_height = bbox[3] - bbox[1]
+    book_top = bbox[1]
+    book_bottom = bbox[3]
+    book_height = book_bottom - book_top
     book_width = bbox[2] - bbox[0]
-    is_horizontal = book_width > book_height
+    book_center = (book_top + book_bottom) / 2
     
-    # For horizontal books, use more flexible tolerance
-    base_tolerance = SHELF_CENTER_TOLERANCE
+    # Enhanced horizontal book detection
+    aspect_ratio = book_width / book_height if book_height > 0 else float('inf')
+    is_horizontal = aspect_ratio > HORIZONTAL_ASPECT_RATIO
+    
     if is_horizontal:
-        # Horizontal books often sit at shelf edges, so use increased tolerance
-        base_tolerance = SHELF_CENTER_TOLERANCE * HORIZONTAL_BOOK_TOLERANCE_MULTIPLIER
+        # For extremely wide books (like GALLANT), prioritize bottom edge
+        if aspect_ratio > 4.0:  # Extra wide books
+            reference_point = book_bottom - (book_height * 0.25)  # Use point closer to bottom
+        else:
+            reference_point = book_center
+            
+        # Find the shelf where this book has maximum overlap
+        max_overlap = 0
+        best_shelf = -1
+        
+        for idx, (shelf_top, shelf_bottom) in enumerate(shelf_boundaries):
+            # Calculate overlap
+            overlap_top = max(book_top, shelf_top)
+            overlap_bottom = min(book_bottom, shelf_bottom)
+            overlap = max(0, overlap_bottom - overlap_top)
+            
+            # For bottom shelf books, give extra weight to overlap
+            if idx == len(shelf_boundaries) - 1 and book_bottom > shelf_bottom:
+                overlap *= 1.2
+                
+            # Check if reference point is within shelf bounds (with tolerance)
+            shelf_height = shelf_bottom - shelf_top
+            tolerance = shelf_height * SHELF_CENTER_TOLERANCE
+            if (shelf_top - tolerance) <= reference_point <= (shelf_bottom + tolerance):
+                overlap *= 1.5  # Boost overlap score if reference point is in range
+                
+            if overlap > max_overlap:
+                max_overlap = overlap
+                best_shelf = idx
+                
+        if best_shelf >= 0:
+            return best_shelf
+            
+        # Fallback to strict shelf ranges if no good overlap found
+        if reference_point < SHELF_RANGES['SHELF_1']['max_y']:
+            return 0
+        elif SHELF_RANGES['SHELF_2']['min_y'] <= reference_point <= SHELF_RANGES['SHELF_2']['max_y']:
+            return 1
+        elif reference_point >= SHELF_RANGES['SHELF_3']['min_y']:
+            return 2
+            
+        # If still no match, check overlap
+        book_top = bbox[1]
+        book_bottom = bbox[3]
+        
+        # Calculate overlap with each shelf
+        overlaps = []
+        for idx, (shelf_top, shelf_bottom) in enumerate(shelf_boundaries):
+            overlap_top = max(book_top, shelf_top)
+            overlap_bottom = min(book_bottom, shelf_bottom)
+            overlap = max(0, overlap_bottom - overlap_top)
+            overlap_ratio = overlap / book_height if book_height > 0 else 0
+            
+            if overlap_ratio >= HORIZONTAL_OVERLAP_THRESHOLD:
+                overlaps.append((overlap_ratio, idx))
+        
+        if overlaps:
+            # Return shelf with maximum overlap
+            return max(overlaps, key=lambda x: x[0])[1]
+    
+    # For vertical books, use standard tolerance-based approach
+    base_tolerance = SHELF_CENTER_TOLERANCE
     
     for idx, (shelf_top, shelf_bottom) in enumerate(shelf_boundaries):
         shelf_height = shelf_bottom - shelf_top
-        # Add tolerance to shelf boundaries
         tolerance = shelf_height * base_tolerance
         
         if (shelf_top - tolerance) <= book_center <= (shelf_bottom + tolerance):

@@ -1,0 +1,1556 @@
+{
+  "status": "completed",
+  "result": [
+    {
+      "Shelf 1": [
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_63",
+          "position": 1,
+          "bbox": [
+            161,
+            88,
+            208,
+            425
+          ],
+          "confidence": "85%",
+          "metadata": {
+            "Author": "Day Writing Journals",
+            "Book Name": "LIVE FOR YOU",
+            "Series_Name": "",
+            "year_published": 2019,
+            "genre": [],
+            "isbn": [
+              "1073478718",
+              "9781073478712"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_77",
+          "position": 2,
+          "bbox": [
+            208,
+            494,
+            494,
+            542
+          ],
+          "confidence": "78%",
+          "metadata": {
+            "Author": "SCHWAB",
+            "Book Name": "GALLANT",
+            "Series_Name": "",
+            "year_published": 2022,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "9788419029041",
+              "8419029041"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_55",
+          "position": 3,
+          "bbox": [
+            209,
+            78,
+            274,
+            423
+          ],
+          "confidence": "87%",
+          "metadata": {
+            "Author": "Michael Ende",
+            "Book Name": "The Neverending Story",
+            "Series_Name": "",
+            "year_published": 1985,
+            "genre": [
+              "Children's stories"
+            ],
+            "isbn": [
+              "0140317937",
+              "9780140317930"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_17",
+          "position": 4,
+          "bbox": [
+            379,
+            103,
+            433,
+            432
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "Calle Hart",
+            "Book Name": "Quicksilver",
+            "Series_Name": "",
+            "year_published": 2025,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "139975128X",
+              "9781399751285"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_12",
+          "position": 5,
+          "bbox": [
+            433,
+            99,
+            479,
+            432
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "Carissa Broadbent",
+            "Book Name": "The Serpent and the Wings of Night",
+            "Series_Name": "",
+            "year_published": 2024,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "1035040956",
+              "9781035040957"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_16",
+          "position": 6,
+          "bbox": [
+            510,
+            101,
+            565,
+            431
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "CARISSA BROADBENT",
+            "Book Name": "ASHES & THE STAR-CURSED KING",
+            "Series_Name": "",
+            "year_published": 2024,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "1965322158",
+              "9781965322154"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_36",
+          "position": 7,
+          "bbox": [
+            566,
+            99,
+            608,
+            431
+          ],
+          "confidence": "89%",
+          "metadata": {
+            "Author": "Carissa Broadbent",
+            "Book Name": "The Songbird's Heart Stone",
+            "Series_Name": "",
+            "year_published": null,
+            "genre": [],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_25",
+          "position": 8,
+          "bbox": [
+            608,
+            103,
+            648,
+            430
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "Andrew",
+            "Book Name": "The Eyer King",
+            "Series_Name": "",
+            "year_published": null,
+            "genre": [],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_19",
+          "position": 9,
+          "bbox": [
+            649,
+            103,
+            692,
+            423
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "LJ Andrews",
+            "Book Name": "The Ever Queen",
+            "Series_Name": "",
+            "year_published": 2025,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "9780593955055",
+              "0593955056"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_38",
+          "position": 10,
+          "bbox": [
+            692,
+            105,
+            734,
+            430
+          ],
+          "confidence": "89%",
+          "metadata": {
+            "Author": "L.J. Andrews",
+            "Book Name": "The Mist Thief",
+            "Series_Name": "",
+            "year_published": 2025,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "9780593955086",
+              "0593955080"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_49",
+          "position": 11,
+          "bbox": [
+            1069,
+            71,
+            1119,
+            422
+          ],
+          "confidence": "88%",
+          "metadata": {
+            "Author": "ISABEL IBANEZ",
+            "Book Name": "TOGETHER WE BURN",
+            "Series_Name": "",
+            "year_published": 2022,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "9781803360379",
+              "1803360372"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "Shelf 2": [
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_47",
+          "position": 1,
+          "bbox": [
+            34,
+            581,
+            73,
+            913
+          ],
+          "confidence": "88%",
+          "metadata": {
+            "Author": "ELISABETH HELEN",
+            "Book Name": "BONDED BY THORNS",
+            "Series_Name": "",
+            "year_published": 2025,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "0008670579",
+              "9780008670573"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_10",
+          "position": 2,
+          "bbox": [
+            72,
+            583,
+            125,
+            915
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "ELIZABETH HELEN",
+            "Book Name": "WOVEN BY GOLD",
+            "Series_Name": "",
+            "year_published": 2025,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "0008670633",
+              "9780008670634"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_39",
+          "position": 3,
+          "bbox": [
+            127,
+            585,
+            172,
+            915
+          ],
+          "confidence": "89%",
+          "metadata": {
+            "Author": "Mark Lawrence",
+            "Book Name": "The Girl and the Stars",
+            "Series_Name": "",
+            "year_published": 2021,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "0008284792",
+              "9780008284794"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_45",
+          "position": 4,
+          "bbox": [
+            173,
+            584,
+            209,
+            915
+          ],
+          "confidence": "89%",
+          "metadata": {
+            "Author": "KATE FORSYTH",
+            "Book Name": "PSYCHIC",
+            "Series_Name": "",
+            "year_published": 2010,
+            "genre": [
+              "Body",
+              "Mind & Spirit"
+            ],
+            "isbn": [
+              "9780007387175",
+              "0007387172"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_3",
+          "position": 5,
+          "bbox": [
+            210,
+            586,
+            263,
+            918
+          ],
+          "confidence": "92%",
+          "metadata": {
+            "Author": "SARAH A. PARKER",
+            "Book Name": "WHEN THE MOON HATCHED",
+            "Series_Name": "",
+            "year_published": 2024,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "9783641326449",
+              "3641326443"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_75",
+          "position": 6,
+          "bbox": [
+            210,
+            539,
+            517,
+            590
+          ],
+          "confidence": "79%",
+          "metadata": {
+            "Author": "GINA CHEN",
+            "Book Name": "VIOLET MADE OF THORNS",
+            "Series_Name": "",
+            "year_published": 2023,
+            "genre": [],
+            "isbn": [
+              "1399707159",
+              "9781399707152"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_46",
+          "position": 7,
+          "bbox": [
+            265,
+            585,
+            296,
+            918
+          ],
+          "confidence": "88%",
+          "metadata": {
+            "Author": "SOPHIE JORDAN",
+            "Book Name": "A FIRE INSIDE",
+            "Series_Name": "",
+            "year_published": 2021,
+            "genre": [
+              "Documentary films"
+            ],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_40",
+          "position": 8,
+          "bbox": [
+            297,
+            586,
+            333,
+            918
+          ],
+          "confidence": "89%",
+          "metadata": {
+            "Author": "KATHERINE ROBERTS",
+            "Book Name": "THE MINSTREL'S SONG",
+            "Series_Name": "",
+            "year_published": 2015,
+            "genre": [
+              "American poetry"
+            ],
+            "isbn": [
+              "0893049220",
+              "9780893049225"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_11",
+          "position": 9,
+          "bbox": [
+            333,
+            587,
+            380,
+            918
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "CHLOE C. PENARANDA",
+            "Book Name": "THE STARS ARE DYING",
+            "Series_Name": "",
+            "year_published": 2024,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "9781250370440",
+              "1250370442"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_8",
+          "position": 10,
+          "bbox": [
+            379,
+            586,
+            432,
+            920
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "IMANI ERRIA",
+            "Book Name": "HEAVENLY BODIES",
+            "Series_Name": "",
+            "year_published": 1994,
+            "genre": [
+              "Astronomy"
+            ],
+            "isbn": [
+              "0563370335",
+              "9780563370338"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_14",
+          "position": 11,
+          "bbox": [
+            433,
+            589,
+            480,
+            919
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "Melissa Landers",
+            "Book Name": "The Hate King",
+            "Series_Name": "",
+            "year_published": null,
+            "genre": [],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_66",
+          "position": 12,
+          "bbox": [
+            483,
+            588,
+            521,
+            922
+          ],
+          "confidence": "84%",
+          "metadata": {
+            "Author": "OLIV KRY",
+            "Book Name": "",
+            "Series_Name": ""
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_20",
+          "position": 13,
+          "bbox": [
+            520,
+            588,
+            566,
+            920
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "JULIA GUANZON",
+            "Book Name": "THE HURRICANE WARS",
+            "Series_Name": "",
+            "year_published": 2024,
+            "genre": [],
+            "isbn": [
+              "2080439944",
+              "9782080439949"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_42",
+          "position": 14,
+          "bbox": [
+            567,
+            589,
+            606,
+            921
+          ],
+          "confidence": "89%",
+          "metadata": {
+            "Author": "Penn Cole",
+            "Book Name": "Spark the Everflame",
+            "Series_Name": "",
+            "year_published": null,
+            "genre": [],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_2",
+          "position": 15,
+          "bbox": [
+            606,
+            590,
+            664,
+            921
+          ],
+          "confidence": "92%",
+          "metadata": {
+            "Author": "PENN COLE",
+            "Book Name": "GLOW::EVERFLAME",
+            "Series_Name": "",
+            "year_published": 2025,
+            "genre": [],
+            "isbn": [
+              "3911244096",
+              "9783911244091"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_61",
+          "position": 16,
+          "bbox": [
+            663,
+            585,
+            703,
+            921
+          ],
+          "confidence": "85%",
+          "metadata": {
+            "Author": "Heather Fawcett",
+            "Book Name": "Encyclopedia of Faeries",
+            "Series_Name": "",
+            "year_published": 2004,
+            "genre": [
+              "Fairies"
+            ],
+            "isbn": [
+              "1862056595",
+              "9781862056596"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_67",
+          "position": 17,
+          "bbox": [
+            702,
+            587,
+            741,
+            921
+          ],
+          "confidence": "84%",
+          "metadata": {
+            "Author": "Heather Fawcett",
+            "Book Name": "Hunt for the Otherlands",
+            "Series_Name": "",
+            "year_published": null,
+            "genre": [],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_51",
+          "position": 18,
+          "bbox": [
+            741,
+            639,
+            789,
+            926
+          ],
+          "confidence": "88%",
+          "metadata": {
+            "Author": "L.J. Smith",
+            "Book Name": "Silent Shadows",
+            "Series_Name": "",
+            "year_published": 2011,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "1456056646",
+              "9781456056643"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_15",
+          "position": 19,
+          "bbox": [
+            789,
+            667,
+            834,
+            921
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "Rachel SEINSTER",
+            "Book Name": "NIGHT KILL",
+            "Series_Name": "",
+            "year_published": 2022,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_24",
+          "position": 20,
+          "bbox": [
+            834,
+            652,
+            883,
+            922
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "LAUREN ROBERTS",
+            "Book Name": "POWERLESS",
+            "Series_Name": "",
+            "year_published": 2023,
+            "genre": [
+              "Young Adult Fiction"
+            ],
+            "isbn": [
+              "9781665954884",
+              "1665954884"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_33",
+          "position": 21,
+          "bbox": [
+            883,
+            650,
+            923,
+            921
+          ],
+          "confidence": "89%",
+          "metadata": {
+            "Author": "LAUREN ROBERTS",
+            "Book Name": "Reckless",
+            "Series_Name": "",
+            "year_published": 2024,
+            "genre": [
+              "Young Adult Fiction"
+            ],
+            "isbn": [
+              "9781398530140",
+              "139853014X"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_70",
+          "position": 22,
+          "bbox": [
+            923,
+            680,
+            953,
+            921
+          ],
+          "confidence": "83%",
+          "metadata": {
+            "Author": "LAUREN ROBERTS",
+            "Book Name": "IMPACTED",
+            "Series_Name": "",
+            "year_published": 1985,
+            "genre": [
+              "Language Arts & Disciplines"
+            ],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_56",
+          "position": 23,
+          "bbox": [
+            953,
+            637,
+            993,
+            919
+          ],
+          "confidence": "86%",
+          "metadata": {
+            "Author": "ROBERT JORDAN",
+            "Book Name": "THE ASSASSIN'S BLADE",
+            "Series_Name": "THE WHEEL OF TIME",
+            "year_published": 2023,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "9781639731091",
+              "1639731091"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_13",
+          "position": 24,
+          "bbox": [
+            997,
+            634,
+            1043,
+            918
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "C. S. LEWIS",
+            "Book Name": "THE MAGICIAN'S NEPHEW",
+            "Series_Name": "THE CHRONICLES OF NARNIA",
+            "year_published": 2015,
+            "genre": [],
+            "isbn": [
+              "151428359X",
+              "9781514283592"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_1",
+          "position": 25,
+          "bbox": [
+            1048,
+            631,
+            1113,
+            919
+          ],
+          "confidence": "92%",
+          "metadata": {
+            "Author": "MADELINE M MILLER",
+            "Book Name": "THE QUEEN THIEF",
+            "Series_Name": "",
+            "year_published": null,
+            "genre": [],
+            "isbn": []
+          }
+        }
+      ]
+    },
+    {
+      "Shelf 3": [
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_30",
+          "position": 1,
+          "bbox": [
+            27,
+            1115,
+            70,
+            1396
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "HANNAH GRACE",
+            "Book Name": "Icebreaker",
+            "Series_Name": "",
+            "year_published": 2023,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "9781668026038",
+              "1668026031"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_76",
+          "position": 2,
+          "bbox": [
+            65,
+            1063,
+            396,
+            1113
+          ],
+          "confidence": "79%",
+          "metadata": {
+            "Author": "M. L. WANG",
+            "Book Name": "Blood Bright Haven",
+            "Series_Name": "",
+            "year_published": null,
+            "genre": [],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_72",
+          "position": 3,
+          "bbox": [
+            67,
+            1031,
+            399,
+            1065
+          ],
+          "confidence": "82%",
+          "metadata": {
+            "Author": "MAI MOCHIZUKI",
+            "Book Name": "FULL MOON COFFEE SHOP",
+            "Series_Name": "",
+            "year_published": 2025,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "1914240944",
+              "9781914240942"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_29",
+          "position": 4,
+          "bbox": [
+            70,
+            1115,
+            108,
+            1398
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "HANNAH GRACE",
+            "Book Name": "Lullaby",
+            "Series_Name": "",
+            "year_published": 1901,
+            "genre": [],
+            "isbn": [
+              "1005903379",
+              "9781005903374"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_59",
+          "position": 5,
+          "bbox": [
+            92,
+            985,
+            375,
+            1031
+          ],
+          "confidence": "86%",
+          "metadata": {
+            "Author": "S.F. WILLIAMSON",
+            "Book Name": "A LANGUAGE OF THE",
+            "Series_Name": "",
+            "year_published": null,
+            "genre": [],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_6",
+          "position": 6,
+          "bbox": [
+            108,
+            1118,
+            152,
+            1401
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "HANNAH GRACE",
+            "Book Name": "Icebreaker",
+            "Series_Name": "",
+            "year_published": 2023,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "9781668026038",
+              "1668026031"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_37",
+          "position": 7,
+          "bbox": [
+            153,
+            1117,
+            192,
+            1400
+          ],
+          "confidence": "89%",
+          "metadata": {
+            "Author": "Rebecca Yarros",
+            "Book Name": "Wilder",
+            "Series_Name": "",
+            "year_published": 2024,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "9780349442457",
+              "0349442452"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_28",
+          "position": 8,
+          "bbox": [
+            191,
+            1118,
+            231,
+            1402
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "REBECCA YARROS",
+            "Book Name": "IRON FLAME",
+            "Series_Name": "",
+            "year_published": 2024,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "034943705X",
+              "9780349437057"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_35",
+          "position": 9,
+          "bbox": [
+            230,
+            1117,
+            272,
+            1401
+          ],
+          "confidence": "89%",
+          "metadata": {
+            "Author": "Rebecca Yarros",
+            "Book Name": "Rebel",
+            "Series_Name": "",
+            "year_published": 2024,
+            "genre": [],
+            "isbn": [
+              "0349442592",
+              "9780349442594"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_50",
+          "position": 10,
+          "bbox": [
+            273,
+            1119,
+            307,
+            1403
+          ],
+          "confidence": "88%",
+          "metadata": {
+            "Author": "Rebecca Yarros",
+            "Book Name": "Full Measures",
+            "Series_Name": "",
+            "year_published": 2024,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "0349442517",
+              "9780349442518"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_48",
+          "position": 11,
+          "bbox": [
+            306,
+            1118,
+            344,
+            1403
+          ],
+          "confidence": "88%",
+          "metadata": {
+            "Author": "REBECCA YARROS",
+            "Book Name": "FROSTTORNED",
+            "Series_Name": "SKYWARD",
+            "year_published": null,
+            "genre": [],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_27",
+          "position": 12,
+          "bbox": [
+            344,
+            1118,
+            385,
+            1402
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "REBECCA YARROS",
+            "Book Name": "BEYOND WHAT IS GIVEN",
+            "Series_Name": "",
+            "year_published": 2024,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "0349442495",
+              "9780349442495"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_34",
+          "position": 13,
+          "bbox": [
+            384,
+            1119,
+            425,
+            1400
+          ],
+          "confidence": "89%",
+          "metadata": {
+            "Author": "Rebecca Yarros",
+            "Book Name": "Hallowed Ground",
+            "Series_Name": "",
+            "year_published": 2024,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "9780349442549",
+              "0349442541"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_7",
+          "position": 14,
+          "bbox": [
+            424,
+            1117,
+            469,
+            1400
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "REBECCA YARROS",
+            "Book Name": "THE REALITY OF EVERYTHING",
+            "Series_Name": "",
+            "year_published": 2024,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "9780349442587",
+              "0349442584"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_21",
+          "position": 15,
+          "bbox": [
+            465,
+            1129,
+            510,
+            1403
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "REBECCA YARROS",
+            "Book Name": "THE THINGS WE LEAVE UNFINISHED",
+            "Series_Name": "",
+            "year_published": 2021,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "9781682815885",
+              "1682815889"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_44",
+          "position": 16,
+          "bbox": [
+            506,
+            1119,
+            546,
+            1406
+          ],
+          "confidence": "89%",
+          "metadata": {
+            "Author": "REBECCA YARROS",
+            "Book Name": "GREAT AND PRECIOUS THINGS",
+            "Series_Name": "",
+            "year_published": 2020,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "1640638164",
+              "9781640638167"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_58",
+          "position": 17,
+          "bbox": [
+            542,
+            1108,
+            592,
+            1405
+          ],
+          "confidence": "86%",
+          "metadata": {
+            "Author": "REBECCA YARROS",
+            "Book Name": "THE LAST LETTER",
+            "Series_Name": "",
+            "year_published": 2025,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "9781649379658",
+              "164937965X"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_71",
+          "position": 18,
+          "bbox": [
+            588,
+            1084,
+            633,
+            1407
+          ],
+          "confidence": "83%",
+          "metadata": {
+            "Author": "Elsie Silver",
+            "Book Name": "To the Races",
+            "Series_Name": "",
+            "year_published": 2024,
+            "genre": [],
+            "isbn": [
+              "1761429310",
+              "9781761429316"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_43",
+          "position": 19,
+          "bbox": [
+            631,
+            1123,
+            666,
+            1409
+          ],
+          "confidence": "89%",
+          "metadata": {
+            "Author": "Elsie Silver",
+            "Book Name": "A Proud Heart",
+            "Series_Name": "",
+            "year_published": 1939,
+            "genre": [],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_54",
+          "position": 20,
+          "bbox": [
+            666,
+            1123,
+            701,
+            1411
+          ],
+          "confidence": "87%",
+          "metadata": {
+            "Author": "ELSIE SILBER",
+            "Book Name": "THE RIVER",
+            "Series_Name": "",
+            "year_published": 1999,
+            "genre": [
+              "Medical"
+            ],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_53",
+          "position": 21,
+          "bbox": [
+            698,
+            1116,
+            739,
+            1412
+          ],
+          "confidence": "88%",
+          "metadata": {
+            "Author": "ELSIE SILVER",
+            "Book Name": "A FALSE START",
+            "Series_Name": "",
+            "year_published": 2024,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "1398539422",
+              "9781398539426"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_23",
+          "position": 22,
+          "bbox": [
+            738,
+            1127,
+            786,
+            1413
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "Elsie Silver",
+            "Book Name": "Wild Love",
+            "Series_Name": "",
+            "year_published": 2024,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "1960854372",
+              "9781960854377"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_4",
+          "position": 23,
+          "bbox": [
+            786,
+            1126,
+            830,
+            1412
+          ],
+          "confidence": "92%",
+          "metadata": {
+            "Author": "Danielle Stewart",
+            "Book Name": "WILD EYES",
+            "Series_Name": "",
+            "year_published": 2025,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_9",
+          "position": 24,
+          "bbox": [
+            830,
+            1126,
+            870,
+            1411
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "ELSIE SILVER",
+            "Book Name": "Flawless",
+            "Series_Name": "",
+            "year_published": 2023,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "1728297001",
+              "9781728297002"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_69",
+          "position": 25,
+          "bbox": [
+            834,
+            1012,
+            1123,
+            1071
+          ],
+          "confidence": "83%",
+          "metadata": {
+            "Author": "Lauren Asher",
+            "Book Name": "Love Unwritten",
+            "Series_Name": "",
+            "year_published": 2024,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "9780349438009",
+              "0349438005"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_68",
+          "position": 26,
+          "bbox": [
+            835,
+            1073,
+            1120,
+            1127
+          ],
+          "confidence": "84%",
+          "metadata": {
+            "Author": "Lauren Asher",
+            "Book Name": "Love Redesigned",
+            "Series_Name": "",
+            "year_published": 2023,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "9789021487786",
+              "9021487780"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_26",
+          "position": 27,
+          "bbox": [
+            870,
+            1128,
+            915,
+            1412
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "Elsie Silver",
+            "Book Name": "Heartless",
+            "Series_Name": "",
+            "year_published": 2022,
+            "genre": [],
+            "isbn": [
+              "9798354029266"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_18",
+          "position": 28,
+          "bbox": [
+            915,
+            1128,
+            963,
+            1414
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "ELSIE SILVER",
+            "Book Name": "Powerless",
+            "Series_Name": "",
+            "year_published": 2023,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "1728297028",
+              "9781728297026"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_41",
+          "position": 29,
+          "bbox": [
+            965,
+            1128,
+            1006,
+            1415
+          ],
+          "confidence": "89%",
+          "metadata": {
+            "Author": "ELSIE SILVER",
+            "Book Name": "Reckless",
+            "Series_Name": "",
+            "year_published": 2023,
+            "genre": [],
+            "isbn": [
+              "0349437726",
+              "9780349437729"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_22",
+          "position": 30,
+          "bbox": [
+            1007,
+            1126,
+            1046,
+            1414
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "ELSIE SILVER",
+            "Book Name": "Hopeless",
+            "Series_Name": "",
+            "year_published": 2023,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "0349437742",
+              "9780349437743"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_31",
+          "position": 31,
+          "bbox": [
+            1046,
+            1128,
+            1084,
+            1415
+          ],
+          "confidence": "89%",
+          "metadata": {
+            "Author": "Emily Henry",
+            "Book Name": "Beach Read",
+            "Series_Name": "",
+            "year_published": 2025,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "0241788641",
+              "9780241788646"
+            ]
+          }
+        },
+        {
+          "book_id": "7f6ddb10-08ea-4ba7-8aa8-99962576fba0_book_52",
+          "position": 32,
+          "bbox": [
+            1082,
+            1125,
+            1118,
+            1411
+          ],
+          "confidence": "88%",
+          "metadata": {
+            "Author": "EMILY HENRY",
+            "Book Name": "You and Me on Vacation",
+            "Series_Name": "",
+            "year_published": 2021,
+            "genre": [
+              "Fiction"
+            ],
+            "isbn": [
+              "9780241992241",
+              "0241992249"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
