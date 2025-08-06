@@ -15,7 +15,13 @@ async def get_image_upload_status(image_id: str):
         if image_id in processed_images_cache:
             return {"status": "completed", "result": processed_images_cache.get(image_id)}
         
-        raise HTTPException(status_code=404, detail="Upload task not found.")
+        return JSONResponse(
+            status_code=404,
+            content={
+                "status": "not_found",
+                "detail": "Image data not found for the provided ID. Please upload the image or check the ID for typos."
+            }
+        )
 
     status = task.get("status")
 

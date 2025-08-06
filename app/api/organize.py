@@ -29,9 +29,24 @@ async def organize_shelf(request: OrganizeRequest):
             detail=f"The image_id '{image_id}' is not a valid UUID. Please provide a correctly formatted ID."
         )
 
-    # Step 2: Now that the format is valid, check if the data exists in the cache.
+    # Step 2: Check if the image is still being processed
+    from core.tasks_store import upload_tasks
+    task = upload_tasks.get(image_id)
+    if task and task.get("status") == "processing":
+        return JSONResponse(
+            status_code=202,
+            content={"status": "processing", "detail": "The image is currently being processed."}
+        )
+
+    # Step 3: Now that we know it's not processing, check if the data exists in the cache.
     if image_id not in processed_images_cache:
-        raise HTTPException(status_code=404, detail="Image data not found for the provided ID. Please upload the image or check the ID for typos.")
+        return JSONResponse(
+            status_code=404,
+            content={
+                "status": "not_found",
+                "detail": "Image data not found for the provided ID. Please upload the image or check the ID for typos."
+            }
+        )
 
     cached_data = processed_images_cache[image_id]
     
