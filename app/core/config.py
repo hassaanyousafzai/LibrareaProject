@@ -10,7 +10,7 @@ MODEL_PATH = os.getenv(
     "../runs/detect/best.pt"
 )
 MAX_SMALL_DIM = 1200
-CONFIDENCE_THRESHOLD = float(os.getenv("YOLO_CONF", 0.25))
+CONFIDENCE_THRESHOLD = float(os.getenv("YOLO_CONF", 0.50))
 GOOGLE_BOOKS_API_KEY = os.getenv("GOOGLE_BOOKS_API_KEY")
 
 # Spine Detection Configuration

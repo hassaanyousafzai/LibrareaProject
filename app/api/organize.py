@@ -48,6 +48,13 @@ async def organize_shelf(request: OrganizeRequest):
     current_shelf_layout = cached_data
     total_shelves = len(current_shelf_layout)
 
+    # First check if there are any shelves at all
+    if total_shelves == 0:
+        raise HTTPException(
+            status_code=400,
+            detail="No shelves were detected in the image. This could be because no books were detected or all detected books were filtered out due to unreadable spines."
+        )
+
     if shelf_number is not None:
         if shelf_number <= 0:
             raise HTTPException(

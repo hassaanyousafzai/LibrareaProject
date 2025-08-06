@@ -275,51 +275,77 @@ def group_books_into_shelves(books_data: list, original_image_height: int, verti
             }]
         }]
 
-    # Calculate book centers and heights for clustering
-    book_centers = []
+    # Calculate book positions and heights for clustering
+    book_positions = []
     for book in books_data:
         bbox = book['bbox']
-        center_y = (bbox[1] + bbox[3]) / 2  # Use center Y instead of bottom
-        height = bbox[3] - bbox[1]
-        book_centers.append({
+        top_y = bbox[1]
+        bottom_y = bbox[3]
+        height = bottom_y - top_y
+        center_y = (top_y + bottom_y) / 2
+        book_positions.append({
             'book': book,
+            'top_y': top_y,
+            'bottom_y': bottom_y,
             'center_y': center_y,
-            'height': height,
-            'bottom_y': bbox[3]
+            'height': height
         })
     
-    # Sort books by their vertical center position (top to bottom)
-    book_centers.sort(key=lambda x: x['center_y'])
+    # Sort books by their top position (top to bottom)
+    # This is more reliable for shelf detection than center position
+    book_positions.sort(key=lambda x: x['top_y'])
     
     # Calculate dynamic threshold for shelf separation
     if vertical_proximity_threshold_ratio is None:
         # Use average book height as base threshold
-        avg_height = sum(bc['height'] for bc in book_centers) / len(book_centers)
-        # Minimum gap between shelves should be at least 50% of average book height
-        vertical_threshold = max(avg_height * 0.5, original_image_height * 0.05)
+        avg_height = sum(bp['height'] for bp in book_positions) / len(book_positions)
+        # Minimum gap between shelves should be at least 25% of average book height
+        vertical_threshold = max(avg_height * 0.25, original_image_height * 0.03)
     else:
         vertical_threshold = original_image_height * vertical_proximity_threshold_ratio
     
     logger.info(f"[SHELF_GROUPING] Using vertical threshold: {vertical_threshold:.1f}px for image height {original_image_height}px")
     
-    # Group books into shelves using clustering approach
+    # Group books into shelves using a more robust approach
     shelves = []
-    current_shelf = [book_centers[0]]
+    current_shelf = [book_positions[0]]
+    current_shelf_bottom = book_positions[0]['bottom_y']
     
-    for i in range(1, len(book_centers)):
-        current_book = book_centers[i]
-        previous_book = book_centers[i-1]
+    for i in range(1, len(book_positions)):
+        current_book = book_positions[i]
         
-        # Calculate vertical gap between consecutive books
-        vertical_gap = current_book['center_y'] - previous_book['center_y']
+        # Calculate the gap between the current book's top and the previous shelf's bottom
+        vertical_gap = current_book['top_y'] - current_shelf_bottom
         
-        # If gap is large enough, start a new shelf
+        # If the gap is significant or there's minimal vertical overlap, start a new shelf
         if vertical_gap > vertical_threshold:
             shelves.append(current_shelf)
             current_shelf = [current_book]
+            current_shelf_bottom = current_book['bottom_y']
             logger.info(f"[SHELF_GROUPING] New shelf started. Gap: {vertical_gap:.1f}px > threshold: {vertical_threshold:.1f}px")
         else:
-            current_shelf.append(current_book)
+            # Check if this book belongs to the current shelf
+            # A book belongs to the current shelf if it has significant vertical overlap
+            # with the current shelf's range
+            current_shelf_top = min(b['top_y'] for b in current_shelf)
+            current_shelf_bottom = max(b['bottom_y'] for b in current_shelf)
+            book_height = current_book['height']
+            
+            # Calculate vertical overlap with current shelf
+            overlap_top = max(current_shelf_top, current_book['top_y'])
+            overlap_bottom = min(current_shelf_bottom, current_book['bottom_y'])
+            overlap = max(0, overlap_bottom - overlap_top)
+            
+            # If the book overlaps significantly with the current shelf (>40% of its height)
+            if overlap > 0.4 * book_height:
+                current_shelf.append(current_book)
+                current_shelf_bottom = max(current_shelf_bottom, current_book['bottom_y'])
+            else:
+                # Start a new shelf if the book doesn't overlap enough
+                shelves.append(current_shelf)
+                current_shelf = [current_book]
+                current_shelf_bottom = current_book['bottom_y']
+                logger.info(f"[SHELF_GROUPING] New shelf started due to insufficient overlap: {overlap/book_height:.2%}")
     
     # Add the last shelf
     shelves.append(current_shelf)
@@ -329,32 +355,32 @@ def group_books_into_shelves(books_data: list, original_image_height: int, verti
     # For each shelf, sort books by horizontal position and verify alignment
     final_shelf_map = []
     for shelf_idx, shelf_books in enumerate(shelves):
+        # Calculate shelf boundaries
+        shelf_top = min(book['top_y'] for book in shelf_books)
+        shelf_bottom = max(book['bottom_y'] for book in shelf_books)
+        shelf_height = shelf_bottom - shelf_top
+        
         # Sort books horizontally (left to right)
         shelf_books.sort(key=lambda x: x['book']['bbox'][0])
         
-        # Check if books in this shelf are reasonably aligned
-        bottom_positions = [bc['bottom_y'] for bc in shelf_books]
-        center_positions = [bc['center_y'] for bc in shelf_books]
-        
-        # Use bottom alignment as primary criteria, center as secondary
-        bottom_variation = max(bottom_positions) - min(bottom_positions)
-        center_variation = max(center_positions) - min(center_positions)
-        
-        avg_height_in_shelf = sum(bc['height'] for bc in shelf_books) / len(shelf_books)
-        max_allowed_variation = avg_height_in_shelf * 0.4  # Allow 40% height variation for alignment
-        
-        logger.info(f"[SHELF_GROUPING] Shelf {shelf_idx + 1}: {len(shelf_books)} books, bottom_variation: {bottom_variation:.1f}px, center_variation: {center_variation:.1f}px, max_allowed: {max_allowed_variation:.1f}px")
-        
-        # If variation is too high, might need to split further
-        if len(shelf_books) > 3 and (bottom_variation > max_allowed_variation or center_variation > max_allowed_variation):
-            logger.warning(f"[SHELF_GROUPING] Shelf {shelf_idx + 1} has high variation, but keeping as single shelf")
+        # Verify vertical alignment within the shelf
+        for book in shelf_books:
+            book_height = book['height']
+            book_overlap = min(book['bottom_y'], shelf_bottom) - max(book['top_y'], shelf_top)
+            book_overlap_ratio = book_overlap / book_height
+            
+            if book_overlap_ratio < 0.4:  # Less than 40% overlap with shelf
+                logger.warning(f"[SHELF_GROUPING] Book {book['book']['book_id']} has low vertical alignment ({book_overlap_ratio:.2%}) with Shelf {shelf_idx + 1}")
         
         shelf_output = {
             f"Shelf {shelf_idx + 1}": []
         }
 
-        for position_in_shelf, book_center in enumerate(shelf_books):
-            book = book_center['book']
+        # Sort books by x-coordinate (left to right) within the shelf
+        shelf_books.sort(key=lambda x: x['book']['bbox'][0])
+        
+        for position_in_shelf, book_data in enumerate(shelf_books):
+            book = book_data['book']
             book_output = {
                 "book_id": book['book_id'],
                 "position": position_in_shelf + 1,

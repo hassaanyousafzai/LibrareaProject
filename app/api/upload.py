@@ -144,8 +144,6 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
             upload_tasks[image_id].update({"status": "completed", "message": no_spines_message})
             processed_images_cache[image_id] = {
                 "message": no_spines_message,
-                "total_detections": len(preliminary_detections),
-                "rejected_detections": rejected_detections,
                 "spine_detections": []
             }
             return
@@ -272,7 +270,10 @@ async def upload_image(background_tasks: BackgroundTasks, file: UploadFile = Fil
     img = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
     
     if img is None:
-        raise HTTPException(status_code=415, detail="Unsupported file format")
+        raise HTTPException(
+            status_code=415,
+            detail="Unsupported file format. Please upload an image in one of these formats: JPEG/JPG, PNG, BMP, TIFF, or WebP. Maximum file size is 10MB."
+        )
 
     is_blurred, fft_score = is_image_blurred(img)
     if is_blurred:
