@@ -111,7 +111,7 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
         img_full_uint8 = (img_full_norm * 255).astype(np.uint8)
         _, buf_full = cv2.imencode('.jpg', img_full_uint8)
         expected_k, llm_conf = estimate_shelf_count_with_llm(buf_full.tobytes())
-
+        
         upload_tasks[image_id]["message"] = "Detecting books with YOLO model..."
         img_small_uint8 = (img_small_norm * 255).astype(np.uint8)
         results = perform_yolo_inference(img_small_uint8)
