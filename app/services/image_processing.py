@@ -1,12 +1,13 @@
 import cv2
 import numpy as np
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 from core.config import (MAX_SMALL_DIM, SPINE_MIN_ASPECT_RATIO, SPINE_MAX_WIDTH_RATIO,
                           SPINE_MIN_HEIGHT_RATIO, SPINE_MIN_WIDTH_PX, SPINE_MIN_HORIZONTAL_ASPECT_RATIO,
                           SPINE_MAX_HEIGHT_RATIO, SPINE_MIN_WIDTH_RATIO, SHELF_BOUNDARY_PADDING,
                           SHELF_MIN_VERTICAL_BOOKS, SHELF_CENTER_TOLERANCE, HORIZONTAL_BOOK_TOLERANCE_MULTIPLIER,
-                          SHELF_RANGES, HORIZONTAL_ASPECT_RATIO, HORIZONTAL_OVERLAP_THRESHOLD)
+                          HORIZONTAL_ASPECT_RATIO, HORIZONTAL_OVERLAP_THRESHOLD)
 from core.logger import get_logger
+from services.layout_analysis import cluster_shelves_from_boxes
 
 logger = get_logger(__name__)
 
@@ -441,15 +442,7 @@ def assign_book_to_shelf(book: Dict, shelf_boundaries: List[Tuple[float, float]]
                 
         if best_shelf >= 0:
             return best_shelf
-            
-        # Fallback to strict shelf ranges if no good overlap found
-        if reference_point < SHELF_RANGES['SHELF_1']['max_y']:
-            return 0
-        elif SHELF_RANGES['SHELF_2']['min_y'] <= reference_point <= SHELF_RANGES['SHELF_2']['max_y']:
-            return 1
-        elif reference_point >= SHELF_RANGES['SHELF_3']['min_y']:
-            return 2
-            
+
         # If still no match, check overlap
         book_top = bbox[1]
         book_bottom = bbox[3]
@@ -509,7 +502,7 @@ def assign_book_to_shelf(book: Dict, shelf_boundaries: List[Tuple[float, float]]
     
     return -1
 
-def group_books_into_shelves(books_data: list, original_image_height: int, vertical_proximity_threshold_ratio: float = None) -> List[Dict[str, Any]]:
+def group_books_into_shelves(books_data: list, original_image_height: int, expected_k: Optional[int] = None) -> List[Dict[str, Any]]:
     """
     Groups books into shelves based on their vertical proximity and alignment.
     Uses clustering approach to identify distinct shelves at different vertical levels.
@@ -529,8 +522,8 @@ def group_books_into_shelves(books_data: list, original_image_height: int, verti
             }]
         }]
 
-    # First pass: Determine shelf boundaries using vertical books
-    shelf_boundaries = determine_shelf_boundaries(books_data, original_image_height)
+    # Determine shelf boundaries using clustering (data-driven)
+    shelf_boundaries = cluster_shelves_from_boxes(books_data, original_image_height, expected_k)
     
     if not shelf_boundaries:
         # If no clear shelf boundaries found, treat all books as one shelf

@@ -18,6 +18,7 @@ from services.image_processing import (
     merge_overlapping_boxes,
     is_image_blurred
 )
+from services.layout_analysis import estimate_shelf_count_with_llm
 from services.cleanup import cleanup_task_resources
 
 router = APIRouter()
@@ -105,6 +106,12 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
             cleanup_task_resources(image_id)
             return
         
+        upload_tasks[image_id]["message"] = "Estimating shelf count..."
+        # Estimate shelf count with LLM prior (optional)
+        img_full_uint8 = (img_full_norm * 255).astype(np.uint8)
+        _, buf_full = cv2.imencode('.jpg', img_full_uint8)
+        expected_k, llm_conf = estimate_shelf_count_with_llm(buf_full.tobytes())
+
         upload_tasks[image_id]["message"] = "Detecting books with YOLO model..."
         img_small_uint8 = (img_small_norm * 255).astype(np.uint8)
         results = perform_yolo_inference(img_small_uint8)
@@ -157,7 +164,6 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
         with open(annotated_path, 'wb') as f:
             f.write(buf.tobytes())
 
-        img_full_uint8 = (img_full_norm * 255).astype(np.uint8)
         spine_dir = os.path.join(UPLOAD_DIR, "cropped_spines", image_id)
         os.makedirs(spine_dir, exist_ok=True)
 
@@ -239,7 +245,7 @@ def run_image_processing_task(image_id: str, contents: bytes, original_filename:
             })
 
         upload_tasks[image_id]["message"] = "Grouping books into shelves..."
-        shelf_mapped_books = group_books_into_shelves(detections, original_image_height)
+        shelf_mapped_books = group_books_into_shelves(detections, original_image_height, expected_k=expected_k)
         processed_images_cache[image_id] = shelf_mapped_books
         
         final_message = f"Processing complete. Found {len(detections)} books on {len(shelf_mapped_books)} shelves."

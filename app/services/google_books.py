@@ -1,9 +1,69 @@
 import requests
 import re
 from core.config import GOOGLE_BOOKS_API_KEY
+import time
+from typing import Optional
 from core.logger import get_logger
 
 logger = get_logger(__name__)
+
+# Simple global rate limiter state
+_LAST_REQUEST_TS: float = 0.0
+# Minimum interval between requests (seconds). 0.2s ~= 5 requests/second
+MIN_REQUEST_INTERVAL: float = 0.2
+
+def _respect_rate_limit() -> None:
+    global _LAST_REQUEST_TS
+    now = time.monotonic()
+    elapsed = now - _LAST_REQUEST_TS
+    if elapsed < MIN_REQUEST_INTERVAL:
+        time.sleep(MIN_REQUEST_INTERVAL - elapsed)
+    _LAST_REQUEST_TS = time.monotonic()
+
+def _parse_retry_after(header_value: Optional[str]) -> Optional[float]:
+    if not header_value:
+        return None
+    try:
+        # Most services return seconds as an integer
+        return float(int(header_value.strip()))
+    except Exception:
+        # If it's a date format, we ignore for simplicity here
+        return None
+
+def get_with_backoff(url: str, params: dict, *, max_retries: int = 5, backoff_initial: float = 0.5, backoff_factor: float = 2.0, timeout: float = 15.0) -> requests.Response:
+    """
+    Perform a GET request with a minimum delay between calls and exponential backoff on 429/5xx.
+    """
+    attempt = 0
+    while True:
+        _respect_rate_limit()
+        try:
+            resp = requests.get(url, params=params, timeout=timeout)
+            # Handle rate limit and transient server errors with backoff
+            if resp.status_code == 429 or 500 <= resp.status_code < 600:
+                if attempt >= max_retries:
+                    logger.warning(f"[GOOGLE_BOOKS] Giving up after {attempt} retries (status {resp.status_code})")
+                    resp.raise_for_status()
+                retry_after = _parse_retry_after(resp.headers.get("Retry-After"))
+                delay = retry_after if retry_after is not None else backoff_initial * (backoff_factor ** attempt)
+                delay = max(delay, MIN_REQUEST_INTERVAL)
+                attempt += 1
+                logger.warning(f"[GOOGLE_BOOKS] Backoff retry {attempt}/{max_retries} after status {resp.status_code}; sleeping {delay:.2f}s")
+                time.sleep(delay)
+                continue
+
+            resp.raise_for_status()
+            return resp
+        except requests.exceptions.RequestException as e:
+            # Network/timeout errors also get backoff
+            if attempt >= max_retries:
+                logger.exception(f"[GOOGLE_BOOKS] Request failed after {attempt} retries: {e}")
+                raise
+            delay = backoff_initial * (backoff_factor ** attempt)
+            delay = max(delay, MIN_REQUEST_INTERVAL)
+            attempt += 1
+            logger.warning(f"[GOOGLE_BOOKS] Exception on request; retry {attempt}/{max_retries} in {delay:.2f}s: {e}")
+            time.sleep(delay)
 
 def get_best_match(query_title: str, query_author: str, api_results: list) -> dict:
     """
@@ -163,7 +223,7 @@ def enrich_book_metadata(title: str, author: str, series_name: str, crop_name: s
                 "fields": "items(volumeInfo(title,authors))"
             }
             logger.info(f"[GOOGLE_BOOKS] Searching for author with query: '{author_query}' for {crop_name}")
-            gb_resp = requests.get(gb_url, params=gb_params)
+            gb_resp = get_with_backoff(gb_url, gb_params)
             gb_resp.raise_for_status()
             gb_data = gb_resp.json()
             logger.info(f"[GOOGLE_BOOKS] Found {len(gb_data.get('items', []))} results for author search")
@@ -190,7 +250,7 @@ def enrich_book_metadata(title: str, author: str, series_name: str, crop_name: s
             "maxResults": 5,
             "fields": "items(volumeInfo(title,authors,publishedDate,categories,industryIdentifiers))"
         }
-        gb_resp = requests.get(gb_url, params=gb_params)
+        gb_resp = get_with_backoff(gb_url, gb_params)
         gb_resp.raise_for_status()
         gb_data = gb_resp.json()
         best_match_info = None
@@ -204,7 +264,7 @@ def enrich_book_metadata(title: str, author: str, series_name: str, crop_name: s
         if not best_match_info:
             title_only_query = f'intitle:"{title.strip()}"'
             gb_params["q"] = title_only_query
-            gb_resp = requests.get(gb_url, params=gb_params)
+            gb_resp = get_with_backoff(gb_url, gb_params)
             gb_resp.raise_for_status()
             gb_data = gb_resp.json()
             if gb_data.get("items"):

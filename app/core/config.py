@@ -33,12 +33,7 @@ SHELF_MIN_VERTICAL_BOOKS = int(os.getenv("SHELF_MIN_VERTICAL_BOOKS", 3))  # mini
 SHELF_CENTER_TOLERANCE = float(os.getenv("SHELF_CENTER_TOLERANCE", 0.15))  # 15% tolerance for book center point placement
 HORIZONTAL_BOOK_TOLERANCE_MULTIPLIER = float(os.getenv("HORIZONTAL_BOOK_TOLERANCE_MULTIPLIER", 1.2))  # slightly increased tolerance for horizontal books
 
-# Shelf boundary ranges (y-coordinates)
-SHELF_RANGES = {
-    'SHELF_1': {'max_y': 550},
-    'SHELF_2': {'min_y': 550, 'max_y': 1000},
-    'SHELF_3': {'min_y': 1000}
-}
+# Deprecated hardcoded ranges removed in favor of clustering
 
 # Horizontal book detection
 HORIZONTAL_ASPECT_RATIO = 1.5  # width/height ratio to identify horizontal books
@@ -46,3 +41,10 @@ HORIZONTAL_OVERLAP_THRESHOLD = 0.3  # minimum overlap required with shelf
 
 # Ensure upload directory exists
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# Layout analysis configuration
+ENABLE_LLM_SHELF_COUNT = os.getenv("ENABLE_LLM_SHELF_COUNT", "true").lower() == "true"
+LLM_MODEL_NAME = os.getenv("LLM_MODEL_NAME", "gemini-2.5-flash")
+MAX_SHELVES = int(os.getenv("MAX_SHELVES", 6))
+SHELF_CLUSTER_PADDING_RATIO = float(os.getenv("SHELF_CLUSTER_PADDING_RATIO", 0.08))
+SHELF_SILHOUETTE_MIN = float(os.getenv("SHELF_SILHOUETTE_MIN", 0.2))
