@@ -23,7 +23,7 @@ Librarea is an intelligent bookshelf organization tool that uses computer vision
 6.  **OCR and Metadata Extraction:** Each spine image is sent to the Gemini 2.0 Flash model, which performs OCR to read the book's title and author.
 7.  **Metadata Enrichment:** The extracted title and author are used to query the Google Books API, fetching additional details like genre, publication year, and ISBN.
 8.  **Shelf Grouping:** The processed books are intelligently grouped into shelves based on their vertical alignment in the original image.
-9.  **Organization:** The user can then send a request to the `/organize-shelf/` endpoint with their desired sorting criteria.
+9.  **Organization:** The user can then call the `/organize-shelf/` endpoint (GET) with their desired sorting criteria to receive an organized layout and move plan.
 10. **Reordering Plan:** The system generates a new, organized layout for the shelf and provides a list of moves to achieve the desired arrangement.
 
 ## Technologies Used
@@ -84,6 +84,12 @@ The application will be available at `http://127.0.0.1:8000`.
 
 - `POST /upload-image/`: Upload an image of a bookshelf.
 - `GET /status/{image_id}`: Get real-time status updates for an upload task.
-- `POST /organize-shelf/`: Request a reorganization plan for a specific shelf.
+- `GET /organize-shelf/`: Fetch a reorganization plan for a specific shelf.
+  - Query params:
+    - `image_id` (required): the upload task ID (UUID)
+    - `sort_by` (optional, default `title`): one of `author`, `title`, `genre`, `height`
+    - `sort_order` (optional, default `asc`): `asc` or `desc`
+    - `shelf_number` (optional, default `1`): shelf index starting from 1
+  - Returns the same response body as shown in `organize-api.json`.
 - `POST /upload-image/{image_id}/cancel`: Cancel a running upload task.
 - `GET /upload-image/{image_id}/status`: **(Deprecated)** Get the status of an upload task. 

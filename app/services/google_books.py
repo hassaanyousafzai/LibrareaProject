@@ -326,7 +326,7 @@ def enrich_book_metadata(title: str, author: str, series_name: str, crop_name: s
         years = [y for y in (_parse_year(info.get("publishedDate")) for info in candidates) if y]
         year_published = min(years) if years else None
 
-        # Choose the single best item for genres/ISBNs/author display
+        # Choose the single best item for display fields (title/authors, genres)
         best_info = max(scored, key=lambda x: x[0])[1]
         raw_genres = best_info.get("categories", []) or []
         processed_genres: List[str] = []
@@ -335,12 +335,15 @@ def enrich_book_metadata(title: str, author: str, series_name: str, crop_name: s
             processed_genres.extend(sub_genres)
         unique_genres = sorted(list(set(g for g in processed_genres if g)))[:5]
 
-        isbn_list: List[str] = []
-        for ident in best_info.get("industryIdentifiers", []) or []:
-            if ident.get("type") in ("ISBN_10", "ISBN_13"):
-                val = ident.get("identifier")
-                if val:
-                    isbn_list.append(val)
+        # Aggregate ISBNs across all acceptable candidates to avoid missing editions
+        isbn_set: set[str] = set()
+        for info in candidates:
+            for ident in info.get("industryIdentifiers", []) or []:
+                if ident.get("type") in ("ISBN_10", "ISBN_13"):
+                    val = ident.get("identifier")
+                    if val:
+                        isbn_set.add(val)
+        isbn_list: List[str] = sorted(list(isbn_set))[:6]
 
         api_authors = best_info.get("authors", []) or []
         author_from_api = " & ".join(api_authors)
