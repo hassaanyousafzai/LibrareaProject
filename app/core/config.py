@@ -10,7 +10,7 @@ MODEL_PATH = os.getenv(
     "../runs/detect/best.pt"
 )
 MAX_SMALL_DIM = int(os.getenv("MAX_SMALL_DIM", 1600))
-CONFIDENCE_THRESHOLD = float(os.getenv("YOLO_CONF", 0.35))
+CONFIDENCE_THRESHOLD = float(os.getenv("YOLO_CONF", 0.4))
 GOOGLE_BOOKS_API_KEY = os.getenv("GOOGLE_BOOKS_API_KEY")
 
 # Spine Detection Configuration
@@ -54,3 +54,9 @@ ENABLE_TTA = os.getenv("ENABLE_TTA", "true").lower() == "true"
 TTA_SCALES = os.getenv("TTA_SCALES", "0.75,1.0,1.25")  # comma-separated floats
 ENABLE_HFLIP_TTA = os.getenv("ENABLE_HFLIP_TTA", "true").lower() == "true"
 TTA_MERGE_IOU = float(os.getenv("TTA_MERGE_IOU", 0.5))
+
+# Gemini OCR rate limiting / backoff
+GEMINI_MIN_INTERVAL = float(os.getenv("GEMINI_MIN_INTERVAL", 0.25))  # seconds between calls
+GEMINI_MAX_RETRIES = int(os.getenv("GEMINI_MAX_RETRIES", 5))
+GEMINI_BACKOFF_INITIAL = float(os.getenv("GEMINI_BACKOFF_INITIAL", 0.5))
+GEMINI_BACKOFF_FACTOR = float(os.getenv("GEMINI_BACKOFF_FACTOR", 2.0))

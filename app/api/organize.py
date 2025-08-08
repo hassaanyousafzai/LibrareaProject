@@ -1,26 +1,21 @@
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
-from core.models import OrganizeRequest
 from core.logger import get_logger
 from core.cache import processed_images_cache
-from typing import Any
+from typing import Any, Optional
 import uuid
 
 router = APIRouter()
 logger = get_logger(__name__)
 
-@router.post("/organize-shelf/")
-async def organize_shelf(request: OrganizeRequest):
-    """
-    Provides reorganization suggestions for books on a shelf based on specified criteria.
-    """
-    image_id = request.image_id
-    sort_by = request.sort_by
-    shelf_number = request.shelf_number
-    sort_order = request.sort_order
 
-    # Step 1: Validate that the image_id string is in a valid UUID format.
+@router.get("/organize-shelf/")
+async def get_organize_shelf(image_id: str, sort_by: str = "title", sort_order: str = "asc", shelf_number: Optional[int] = 1):
+    """
+    GET variant of organize-shelf that returns the same response using query parameters.
+    """
+    # Validate image_id
     try:
         uuid.UUID(image_id)
     except ValueError:
@@ -29,7 +24,7 @@ async def organize_shelf(request: OrganizeRequest):
             detail=f"The image_id '{image_id}' is not a valid UUID. Please provide a correctly formatted ID."
         )
 
-    # Step 2: Check if the image is still being processed
+    # Check if processing
     from core.tasks_store import upload_tasks
     task = upload_tasks.get(image_id)
     if task and task.get("status") == "processing":
@@ -38,7 +33,7 @@ async def organize_shelf(request: OrganizeRequest):
             content={"status": "processing", "detail": "The image is currently being processed."}
         )
 
-    # Step 3: Now that we know it's not processing, check if the data exists in the cache.
+    # Ensure cache
     if image_id not in processed_images_cache:
         return JSONResponse(
             status_code=404,
@@ -49,7 +44,6 @@ async def organize_shelf(request: OrganizeRequest):
         )
 
     cached_data = processed_images_cache[image_id]
-    
     if isinstance(cached_data, dict) and "message" in cached_data:
         return JSONResponse({
             "image_id": image_id,
@@ -59,11 +53,10 @@ async def organize_shelf(request: OrganizeRequest):
             "spine_detections": cached_data.get("spine_detections", []),
             "can_organize": False
         })
-    
+
     current_shelf_layout = cached_data
     total_shelves = len(current_shelf_layout)
 
-    # First check if there are any shelves at all
     if total_shelves == 0:
         raise HTTPException(
             status_code=400,
@@ -90,7 +83,6 @@ async def organize_shelf(request: OrganizeRequest):
 
     valid_sort_by = ["author", "title", "genre", "height"]
     valid_sort_order = ["asc", "desc"]
-
     if sort_by not in valid_sort_by:
         raise HTTPException(status_code=400, detail=f"Invalid sort_by criteria. Must be one of: {', '.join(valid_sort_by)}")
     if sort_order not in valid_sort_order:
@@ -121,23 +113,9 @@ async def organize_shelf(request: OrganizeRequest):
 
         if shelf_number is not None and shelf_idx + 1 != shelf_number:
             organized_layout.append(shelf_data_dict)
-            if shelf_number is None:
-                if not books_on_current_shelf:
-                    all_reorder_instructions.append({
-                        "action": "info",
-                        "shelf": shelf_name,
-                        "message": f"No books detected on Shelf {shelf_name}."
-                    })
-                else:
-                    all_reorder_instructions.append({
-                        "action": "info",
-                        "shelf": shelf_name,
-                        "message": f"Shelf {shelf_name} was not targeted for reordering and remains in its original layout."
-                    })
             continue
 
         books_to_sort = list(books_on_current_shelf)
-
         try:
             books_to_sort.sort(key=get_sort_key, reverse=(sort_order == "desc"))
         except Exception as e:
@@ -145,52 +123,30 @@ async def organize_shelf(request: OrganizeRequest):
             books_to_sort = books_on_current_shelf
 
         shelf_reorder_moves = []
-        
         original_positions = {book['book_id']: book['position'] for book in books_on_current_shelf}
-        
         original_book_ids = [book['book_id'] for book in books_on_current_shelf]
         sorted_book_ids = [book['book_id'] for book in books_to_sort]
-        
         shelf_order_changed = original_book_ids != sorted_book_ids
-        
+
         if shelf_order_changed:
             for new_pos, book in enumerate(books_to_sort, start=1):
-                book_id = book['book_id']
-                original_pos = original_positions[book_id]
-                
                 shelf_reorder_moves.append({
                     "action": "move",
                     "shelf": shelf_name,
-                    "book_id": book_id,
+                    "book_id": book['book_id'],
                     "book_name": book['metadata'].get("Book Name", "N/A"),
                     "author": book['metadata'].get("Author", "N/A"),
-                    "original_position": original_pos,
+                    "original_position": original_positions[book['book_id']],
                     "new_position": new_pos
                 })
-
         shelf_reorder_moves.sort(key=lambda x: x['new_position'])
-
-        if not shelf_reorder_moves and len(books_on_current_shelf) > 0:
-             all_reorder_instructions.append({
-                 "action": "info",
-                 "shelf": shelf_name,
-                 "message": f"Shelf {shelf_name} is already in the requested order or no rearrangement needed."
-             })
-        elif len(books_on_current_shelf) == 0:
-             all_reorder_instructions.append({
-                 "action": "info",
-                 "shelf": shelf_name,
-                 "message": f"No books detected on Shelf {shelf_name}."
-             })
-        else:
-            all_reorder_instructions.extend(shelf_reorder_moves)
+        all_reorder_instructions.extend(shelf_reorder_moves)
 
         sorted_books_with_new_positions = []
         for i, book in enumerate(books_to_sort):
             book_copy = book.copy()
             book_copy['position'] = i + 1
             sorted_books_with_new_positions.append(book_copy)
-
         organized_layout.append({shelf_name: sorted_books_with_new_positions})
 
     return JSONResponse({

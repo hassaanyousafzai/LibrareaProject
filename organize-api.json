@@ -1,0 +1,1268 @@
+{
+  "image_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf",
+  "requested_sort_by": "title",
+  "sort_order": "asc",
+  "shelf_number_processed": 1,
+  "current_layout": [
+    {
+      "Shelf 1": [
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_10",
+          "position": 1,
+          "bbox": [
+            4,
+            155,
+            384,
+            1986
+          ],
+          "confidence": "92%",
+          "metadata": {
+            "Author": "Kevin Bales",
+            "Book Name": "DISPOSABLE PEOPLE",
+            "Series_Name": "",
+            "year_published": 2008,
+            "genre": [
+              "Business & Economics"
+            ],
+            "isbn": [
+              "9780520272910",
+              "0520272919"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_16",
+          "position": 2,
+          "bbox": [
+            228,
+            448,
+            461,
+            1974
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "Elizabeth Laird",
+            "Book Name": "The Ogrees and the Snake",
+            "Series_Name": "",
+            "year_published": 2008,
+            "genre": [
+              "Juvenile Fiction"
+            ],
+            "isbn": [
+              "1845076419",
+              "9781845076412"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_9",
+          "position": 3,
+          "bbox": [
+            315,
+            268,
+            675,
+            1939
+          ],
+          "confidence": "92%",
+          "metadata": {
+            "Author": "Abdi Nor Iftin",
+            "Book Name": "Call Me American",
+            "Series_Name": "",
+            "year_published": 2019,
+            "genre": [
+              "Biography & Autobiography"
+            ],
+            "isbn": [
+              "1643580485",
+              "9781643580487"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_2",
+          "position": 4,
+          "bbox": [
+            521,
+            34,
+            889,
+            1955
+          ],
+          "confidence": "93%",
+          "metadata": {
+            "Author": "Andrew Harding",
+            "Book Name": "The Mayor of Mogadishu",
+            "Series_Name": "",
+            "year_published": 2018,
+            "genre": [
+              "History"
+            ],
+            "isbn": [
+              "9781787380431",
+              "1787380432"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_18",
+          "position": 5,
+          "bbox": [
+            780,
+            110,
+            1070,
+            1937
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "Abdi Aden and Robert Hillman",
+            "Book Name": "SHINNING",
+            "Series_Name": "",
+            "year_published": 2015,
+            "genre": [
+              "Biography & Autobiography"
+            ],
+            "isbn": [
+              "0732299845",
+              "9780732299842"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_23",
+          "position": 6,
+          "bbox": [
+            986,
+            279,
+            1082,
+            1932
+          ],
+          "confidence": "43%",
+          "metadata": {
+            "Author": "Unrecognized",
+            "Book Name": "Unrecognized",
+            "Series_Name": ""
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_4",
+          "position": 7,
+          "bbox": [
+            1123,
+            156,
+            1454,
+            1920
+          ],
+          "confidence": "93%",
+          "metadata": {
+            "Author": "Yasmeen M.",
+            "Book Name": "NOMAD DIARIES",
+            "Series_Name": "",
+            "year_published": 2010,
+            "genre": [
+              "Democracy"
+            ],
+            "isbn": [
+              "0732289777",
+              "9780732289775"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_11",
+          "position": 8,
+          "bbox": [
+            1383,
+            178,
+            1644,
+            1921
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "ALEX DE WAAL",
+            "Book Name": "THE REAL POLITICS OF THE HORN OF AFRICA",
+            "Series_Name": "",
+            "year_published": 2015,
+            "genre": [
+              "Social Science"
+            ],
+            "isbn": [
+              "0745695574",
+              "9780745695570"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_19",
+          "position": 9,
+          "bbox": [
+            1591,
+            545,
+            1738,
+            1924
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "Cheikh Hamidou Kane",
+            "Book Name": "Ambiguous Adventure",
+            "Series_Name": "",
+            "year_published": 1963,
+            "genre": [],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_15",
+          "position": 10,
+          "bbox": [
+            1697,
+            174,
+            1890,
+            1921
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "Kapteijns",
+            "Book Name": "CLAN CLEANSING IN SOMALIA",
+            "Series_Name": "",
+            "year_published": 2012,
+            "genre": [
+              "Political Science"
+            ],
+            "isbn": [
+              "9780812207583",
+              "0812207580"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_21",
+          "position": 11,
+          "bbox": [
+            1869,
+            177,
+            1984,
+            1922
+          ],
+          "confidence": "87%",
+          "metadata": {
+            "Author": "ABDULLAHI",
+            "Book Name": "CULTURE AND CUSTOMS OF SOMALIA",
+            "Series_Name": "",
+            "year_published": 2001,
+            "genre": [
+              "Social Science"
+            ],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_20",
+          "position": 12,
+          "bbox": [
+            1981,
+            342,
+            2108,
+            1915
+          ],
+          "confidence": "89%",
+          "metadata": {
+            "Author": "B W Andrzewski",
+            "Book Name": "In Praise of Small Literature",
+            "Series_Name": "",
+            "year_published": 1983,
+            "genre": [
+              "Religion"
+            ],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_17",
+          "position": 13,
+          "bbox": [
+            2104,
+            289,
+            2255,
+            1926
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "LEWIS",
+            "Book Name": "BLOOD AND BONE",
+            "Series_Name": "",
+            "year_published": 1994,
+            "genre": [
+              "History"
+            ],
+            "isbn": [
+              "0932415938",
+              "9780932415936"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_3",
+          "position": 14,
+          "bbox": [
+            2232,
+            270,
+            2517,
+            1916
+          ],
+          "confidence": "93%",
+          "metadata": {
+            "Author": "BEN RAWLENCE",
+            "Book Name": "CITY OF THORNS",
+            "Series_Name": "",
+            "year_published": 2016,
+            "genre": [
+              "Political Science"
+            ],
+            "isbn": [
+              "1846275873",
+              "9781846275876"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_8",
+          "position": 15,
+          "bbox": [
+            2468,
+            381,
+            2671,
+            1918
+          ],
+          "confidence": "92%",
+          "metadata": {
+            "Author": "Jay Bahadur",
+            "Book Name": "The Pirates of Somalia",
+            "Series_Name": "",
+            "year_published": 2012,
+            "genre": [
+              "Hijacking of ships"
+            ],
+            "isbn": [
+              "1554686830",
+              "9781554686834"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_13",
+          "position": 16,
+          "bbox": [
+            2597,
+            279,
+            2798,
+            1918
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "MARY",
+            "Book Name": "GETTING SOMALIA WRONG?",
+            "Series_Name": "",
+            "year_published": 2012,
+            "genre": [
+              "Political Science"
+            ],
+            "isbn": [
+              "9781780321042",
+              "178032104X"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_1",
+          "position": 17,
+          "bbox": [
+            2696,
+            325,
+            3025,
+            1924
+          ],
+          "confidence": "94%",
+          "metadata": {
+            "Author": "J.M.G. Le Clézio",
+            "Book Name": "Desert",
+            "Series_Name": "",
+            "year_published": 1985,
+            "genre": [
+              "Berbers"
+            ],
+            "isbn": [
+              "1848873816",
+              "9781848873810"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_6",
+          "position": 18,
+          "bbox": [
+            2909,
+            532,
+            3160,
+            1928
+          ],
+          "confidence": "92%",
+          "metadata": {
+            "Author": "DAVID MILIBAND",
+            "Book Name": "Rescue",
+            "Series_Name": "",
+            "year_published": 2017,
+            "genre": [
+              "Political Science"
+            ],
+            "isbn": [
+              "9781501154393",
+              "1501154397"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_7",
+          "position": 19,
+          "bbox": [
+            3030,
+            328,
+            3322,
+            1931
+          ],
+          "confidence": "92%",
+          "metadata": {
+            "Author": "Ishmael Beah",
+            "Book Name": "A Long Way Gone",
+            "Series_Name": "",
+            "year_published": 2008,
+            "genre": [],
+            "isbn": [
+              "1417828455",
+              "9781417828456"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_12",
+          "position": 20,
+          "bbox": [
+            3171,
+            266,
+            3472,
+            1926
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "James Currey",
+            "Book Name": "Somalia: Economy Without State",
+            "Series_Name": "",
+            "year_published": 2013,
+            "genre": [
+              "Political Science"
+            ],
+            "isbn": [
+              "9781317985921",
+              "1317985923"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_14",
+          "position": 21,
+          "bbox": [
+            3320,
+            260,
+            3687,
+            1946
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "I.M. LEWIS",
+            "Book Name": "Somali: A Modern History of the",
+            "Series_Name": "",
+            "year_published": 2002,
+            "genre": [
+              "History"
+            ],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_5",
+          "position": 22,
+          "bbox": [
+            3482,
+            152,
+            3840,
+            1948
+          ],
+          "confidence": "92%",
+          "metadata": {
+            "Author": "Samatar",
+            "Book Name": "Oral Poetry and Somali Nationalism",
+            "Series_Name": "",
+            "year_published": 1982,
+            "genre": [
+              "History"
+            ],
+            "isbn": [
+              "9780521238335",
+              "0521238331"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_22",
+          "position": 23,
+          "bbox": [
+            3757,
+            468,
+            3840,
+            1892
+          ],
+          "confidence": "63%",
+          "metadata": {
+            "Author": "Unrecognized",
+            "Book Name": "Unrecognized",
+            "Series_Name": "STAR WARS"
+          }
+        }
+      ]
+    }
+  ],
+  "organized_layout": [
+    {
+      "Shelf 1": [
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_7",
+          "position": 1,
+          "bbox": [
+            3030,
+            328,
+            3322,
+            1931
+          ],
+          "confidence": "92%",
+          "metadata": {
+            "Author": "Ishmael Beah",
+            "Book Name": "A Long Way Gone",
+            "Series_Name": "",
+            "year_published": 2008,
+            "genre": [],
+            "isbn": [
+              "1417828455",
+              "9781417828456"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_19",
+          "position": 2,
+          "bbox": [
+            1591,
+            545,
+            1738,
+            1924
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "Cheikh Hamidou Kane",
+            "Book Name": "Ambiguous Adventure",
+            "Series_Name": "",
+            "year_published": 1963,
+            "genre": [],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_17",
+          "position": 3,
+          "bbox": [
+            2104,
+            289,
+            2255,
+            1926
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "LEWIS",
+            "Book Name": "BLOOD AND BONE",
+            "Series_Name": "",
+            "year_published": 1994,
+            "genre": [
+              "History"
+            ],
+            "isbn": [
+              "0932415938",
+              "9780932415936"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_9",
+          "position": 4,
+          "bbox": [
+            315,
+            268,
+            675,
+            1939
+          ],
+          "confidence": "92%",
+          "metadata": {
+            "Author": "Abdi Nor Iftin",
+            "Book Name": "Call Me American",
+            "Series_Name": "",
+            "year_published": 2019,
+            "genre": [
+              "Biography & Autobiography"
+            ],
+            "isbn": [
+              "1643580485",
+              "9781643580487"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_3",
+          "position": 5,
+          "bbox": [
+            2232,
+            270,
+            2517,
+            1916
+          ],
+          "confidence": "93%",
+          "metadata": {
+            "Author": "BEN RAWLENCE",
+            "Book Name": "CITY OF THORNS",
+            "Series_Name": "",
+            "year_published": 2016,
+            "genre": [
+              "Political Science"
+            ],
+            "isbn": [
+              "1846275873",
+              "9781846275876"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_15",
+          "position": 6,
+          "bbox": [
+            1697,
+            174,
+            1890,
+            1921
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "Kapteijns",
+            "Book Name": "CLAN CLEANSING IN SOMALIA",
+            "Series_Name": "",
+            "year_published": 2012,
+            "genre": [
+              "Political Science"
+            ],
+            "isbn": [
+              "9780812207583",
+              "0812207580"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_21",
+          "position": 7,
+          "bbox": [
+            1869,
+            177,
+            1984,
+            1922
+          ],
+          "confidence": "87%",
+          "metadata": {
+            "Author": "ABDULLAHI",
+            "Book Name": "CULTURE AND CUSTOMS OF SOMALIA",
+            "Series_Name": "",
+            "year_published": 2001,
+            "genre": [
+              "Social Science"
+            ],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_1",
+          "position": 8,
+          "bbox": [
+            2696,
+            325,
+            3025,
+            1924
+          ],
+          "confidence": "94%",
+          "metadata": {
+            "Author": "J.M.G. Le Clézio",
+            "Book Name": "Desert",
+            "Series_Name": "",
+            "year_published": 1985,
+            "genre": [
+              "Berbers"
+            ],
+            "isbn": [
+              "1848873816",
+              "9781848873810"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_10",
+          "position": 9,
+          "bbox": [
+            4,
+            155,
+            384,
+            1986
+          ],
+          "confidence": "92%",
+          "metadata": {
+            "Author": "Kevin Bales",
+            "Book Name": "DISPOSABLE PEOPLE",
+            "Series_Name": "",
+            "year_published": 2008,
+            "genre": [
+              "Business & Economics"
+            ],
+            "isbn": [
+              "9780520272910",
+              "0520272919"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_13",
+          "position": 10,
+          "bbox": [
+            2597,
+            279,
+            2798,
+            1918
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "MARY",
+            "Book Name": "GETTING SOMALIA WRONG?",
+            "Series_Name": "",
+            "year_published": 2012,
+            "genre": [
+              "Political Science"
+            ],
+            "isbn": [
+              "9781780321042",
+              "178032104X"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_20",
+          "position": 11,
+          "bbox": [
+            1981,
+            342,
+            2108,
+            1915
+          ],
+          "confidence": "89%",
+          "metadata": {
+            "Author": "B W Andrzewski",
+            "Book Name": "In Praise of Small Literature",
+            "Series_Name": "",
+            "year_published": 1983,
+            "genre": [
+              "Religion"
+            ],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_4",
+          "position": 12,
+          "bbox": [
+            1123,
+            156,
+            1454,
+            1920
+          ],
+          "confidence": "93%",
+          "metadata": {
+            "Author": "Yasmeen M.",
+            "Book Name": "NOMAD DIARIES",
+            "Series_Name": "",
+            "year_published": 2010,
+            "genre": [
+              "Democracy"
+            ],
+            "isbn": [
+              "0732289777",
+              "9780732289775"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_5",
+          "position": 13,
+          "bbox": [
+            3482,
+            152,
+            3840,
+            1948
+          ],
+          "confidence": "92%",
+          "metadata": {
+            "Author": "Samatar",
+            "Book Name": "Oral Poetry and Somali Nationalism",
+            "Series_Name": "",
+            "year_published": 1982,
+            "genre": [
+              "History"
+            ],
+            "isbn": [
+              "9780521238335",
+              "0521238331"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_6",
+          "position": 14,
+          "bbox": [
+            2909,
+            532,
+            3160,
+            1928
+          ],
+          "confidence": "92%",
+          "metadata": {
+            "Author": "DAVID MILIBAND",
+            "Book Name": "Rescue",
+            "Series_Name": "",
+            "year_published": 2017,
+            "genre": [
+              "Political Science"
+            ],
+            "isbn": [
+              "9781501154393",
+              "1501154397"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_18",
+          "position": 15,
+          "bbox": [
+            780,
+            110,
+            1070,
+            1937
+          ],
+          "confidence": "90%",
+          "metadata": {
+            "Author": "Abdi Aden and Robert Hillman",
+            "Book Name": "SHINNING",
+            "Series_Name": "",
+            "year_published": 2015,
+            "genre": [
+              "Biography & Autobiography"
+            ],
+            "isbn": [
+              "0732299845",
+              "9780732299842"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_14",
+          "position": 16,
+          "bbox": [
+            3320,
+            260,
+            3687,
+            1946
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "I.M. LEWIS",
+            "Book Name": "Somali: A Modern History of the",
+            "Series_Name": "",
+            "year_published": 2002,
+            "genre": [
+              "History"
+            ],
+            "isbn": []
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_12",
+          "position": 17,
+          "bbox": [
+            3171,
+            266,
+            3472,
+            1926
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "James Currey",
+            "Book Name": "Somalia: Economy Without State",
+            "Series_Name": "",
+            "year_published": 2013,
+            "genre": [
+              "Political Science"
+            ],
+            "isbn": [
+              "9781317985921",
+              "1317985923"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_2",
+          "position": 18,
+          "bbox": [
+            521,
+            34,
+            889,
+            1955
+          ],
+          "confidence": "93%",
+          "metadata": {
+            "Author": "Andrew Harding",
+            "Book Name": "The Mayor of Mogadishu",
+            "Series_Name": "",
+            "year_published": 2018,
+            "genre": [
+              "History"
+            ],
+            "isbn": [
+              "9781787380431",
+              "1787380432"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_16",
+          "position": 19,
+          "bbox": [
+            228,
+            448,
+            461,
+            1974
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "Elizabeth Laird",
+            "Book Name": "The Ogrees and the Snake",
+            "Series_Name": "",
+            "year_published": 2008,
+            "genre": [
+              "Juvenile Fiction"
+            ],
+            "isbn": [
+              "1845076419",
+              "9781845076412"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_8",
+          "position": 20,
+          "bbox": [
+            2468,
+            381,
+            2671,
+            1918
+          ],
+          "confidence": "92%",
+          "metadata": {
+            "Author": "Jay Bahadur",
+            "Book Name": "The Pirates of Somalia",
+            "Series_Name": "",
+            "year_published": 2012,
+            "genre": [
+              "Hijacking of ships"
+            ],
+            "isbn": [
+              "1554686830",
+              "9781554686834"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_11",
+          "position": 21,
+          "bbox": [
+            1383,
+            178,
+            1644,
+            1921
+          ],
+          "confidence": "91%",
+          "metadata": {
+            "Author": "ALEX DE WAAL",
+            "Book Name": "THE REAL POLITICS OF THE HORN OF AFRICA",
+            "Series_Name": "",
+            "year_published": 2015,
+            "genre": [
+              "Social Science"
+            ],
+            "isbn": [
+              "0745695574",
+              "9780745695570"
+            ]
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_23",
+          "position": 22,
+          "bbox": [
+            986,
+            279,
+            1082,
+            1932
+          ],
+          "confidence": "43%",
+          "metadata": {
+            "Author": "Unrecognized",
+            "Book Name": "Unrecognized",
+            "Series_Name": ""
+          }
+        },
+        {
+          "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_22",
+          "position": 23,
+          "bbox": [
+            3757,
+            468,
+            3840,
+            1892
+          ],
+          "confidence": "63%",
+          "metadata": {
+            "Author": "Unrecognized",
+            "Book Name": "Unrecognized",
+            "Series_Name": "STAR WARS"
+          }
+        }
+      ]
+    }
+  ],
+  "reorder_instructions": [
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_7",
+      "book_name": "A Long Way Gone",
+      "author": "Ishmael Beah",
+      "original_position": 19,
+      "new_position": 1
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_19",
+      "book_name": "Ambiguous Adventure",
+      "author": "Cheikh Hamidou Kane",
+      "original_position": 9,
+      "new_position": 2
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_17",
+      "book_name": "BLOOD AND BONE",
+      "author": "LEWIS",
+      "original_position": 13,
+      "new_position": 3
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_9",
+      "book_name": "Call Me American",
+      "author": "Abdi Nor Iftin",
+      "original_position": 3,
+      "new_position": 4
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_3",
+      "book_name": "CITY OF THORNS",
+      "author": "BEN RAWLENCE",
+      "original_position": 14,
+      "new_position": 5
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_15",
+      "book_name": "CLAN CLEANSING IN SOMALIA",
+      "author": "Kapteijns",
+      "original_position": 10,
+      "new_position": 6
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_21",
+      "book_name": "CULTURE AND CUSTOMS OF SOMALIA",
+      "author": "ABDULLAHI",
+      "original_position": 11,
+      "new_position": 7
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_1",
+      "book_name": "Desert",
+      "author": "J.M.G. Le Clézio",
+      "original_position": 17,
+      "new_position": 8
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_10",
+      "book_name": "DISPOSABLE PEOPLE",
+      "author": "Kevin Bales",
+      "original_position": 1,
+      "new_position": 9
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_13",
+      "book_name": "GETTING SOMALIA WRONG?",
+      "author": "MARY",
+      "original_position": 16,
+      "new_position": 10
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_20",
+      "book_name": "In Praise of Small Literature",
+      "author": "B W Andrzewski",
+      "original_position": 12,
+      "new_position": 11
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_4",
+      "book_name": "NOMAD DIARIES",
+      "author": "Yasmeen M.",
+      "original_position": 7,
+      "new_position": 12
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_5",
+      "book_name": "Oral Poetry and Somali Nationalism",
+      "author": "Samatar",
+      "original_position": 22,
+      "new_position": 13
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_6",
+      "book_name": "Rescue",
+      "author": "DAVID MILIBAND",
+      "original_position": 18,
+      "new_position": 14
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_18",
+      "book_name": "SHINNING",
+      "author": "Abdi Aden and Robert Hillman",
+      "original_position": 5,
+      "new_position": 15
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_14",
+      "book_name": "Somali: A Modern History of the",
+      "author": "I.M. LEWIS",
+      "original_position": 21,
+      "new_position": 16
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_12",
+      "book_name": "Somalia: Economy Without State",
+      "author": "James Currey",
+      "original_position": 20,
+      "new_position": 17
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_2",
+      "book_name": "The Mayor of Mogadishu",
+      "author": "Andrew Harding",
+      "original_position": 4,
+      "new_position": 18
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_16",
+      "book_name": "The Ogrees and the Snake",
+      "author": "Elizabeth Laird",
+      "original_position": 2,
+      "new_position": 19
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_8",
+      "book_name": "The Pirates of Somalia",
+      "author": "Jay Bahadur",
+      "original_position": 15,
+      "new_position": 20
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_11",
+      "book_name": "THE REAL POLITICS OF THE HORN OF AFRICA",
+      "author": "ALEX DE WAAL",
+      "original_position": 8,
+      "new_position": 21
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_23",
+      "book_name": "Unrecognized",
+      "author": "Unrecognized",
+      "original_position": 6,
+      "new_position": 22
+    },
+    {
+      "action": "move",
+      "shelf": "Shelf 1",
+      "book_id": "1c5c3a2d-4cfc-4736-92c3-a7786673cadf_book_22",
+      "book_name": "Unrecognized",
+      "author": "Unrecognized",
+      "original_position": 23,
+      "new_position": 23
+    }
+  ],
+  "message": "Shelf organization complete."
+}

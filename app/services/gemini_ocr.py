@@ -3,9 +3,17 @@ from google import genai
 from google.genai import types
 from core.models import gemini_response_schema
 from core.logger import get_logger
+from core.config import (
+    GEMINI_MIN_INTERVAL,
+    GEMINI_MAX_RETRIES,
+    GEMINI_BACKOFF_INITIAL,
+    GEMINI_BACKOFF_FACTOR,
+)
+import time
 
 logger = get_logger(__name__)
 client = genai.Client()
+_last_call_ts: float = 0.0
 
 prompt = """
 You are an expert in extracting book metadata strictly from spine images. Your task is to return a JSON with three keys only: "Author", "Book Name", and "Series Name".
@@ -55,12 +63,33 @@ generate_content_config = types.GenerateContentConfig(
 def get_book_metadata_from_spine(image_bytes: bytes, crop_name: str):
     try:
         logger.info(f"[DEBUG] Starting OCR processing for {crop_name}")
-        
-        ocr_resp = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=[types.Part.from_bytes(data=image_bytes, mime_type='image/jpeg')],
-            config=generate_content_config
-        )
+        # Simple rate limit: ensure minimum interval between calls
+        global _last_call_ts
+        elapsed = time.monotonic() - _last_call_ts
+        if elapsed < GEMINI_MIN_INTERVAL:
+            time.sleep(GEMINI_MIN_INTERVAL - elapsed)
+
+        # Exponential backoff on rate limits / transient failures
+        attempt = 0
+        backoff = GEMINI_BACKOFF_INITIAL
+        while True:
+            try:
+                ocr_resp = client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=[types.Part.from_bytes(data=image_bytes, mime_type='image/jpeg')],
+                    config=generate_content_config
+                )
+                _last_call_ts = time.monotonic()
+                break
+            except Exception as e:
+                attempt += 1
+                # Check if it's a rate-limit or transient error; conservatively backoff for any exception
+                if attempt > GEMINI_MAX_RETRIES:
+                    logger.exception(f"[DEBUG] Gemini OCR failed after {attempt-1} retries for {crop_name}: {e}")
+                    raise
+                logger.warning(f"[DEBUG] Gemini OCR error on attempt {attempt} for {crop_name}: {e}. Backing off {backoff:.2f}s")
+                time.sleep(backoff)
+                backoff *= GEMINI_BACKOFF_FACTOR
         
         logger.info(f"[DEBUG] Gemini raw response for {crop_name}: '{ocr_resp.text}'")
         logger.info(f"[DEBUG] Response type: {type(ocr_resp.text)}")
