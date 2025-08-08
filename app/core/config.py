@@ -9,23 +9,23 @@ MODEL_PATH = os.getenv(
     "YOLO_MODEL_PATH",
     "../runs/detect/best.pt"
 )
-MAX_SMALL_DIM = 1200
-CONFIDENCE_THRESHOLD = float(os.getenv("YOLO_CONF", 0.50))
+MAX_SMALL_DIM = int(os.getenv("MAX_SMALL_DIM", 1600))
+CONFIDENCE_THRESHOLD = float(os.getenv("YOLO_CONF", 0.35))
 GOOGLE_BOOKS_API_KEY = os.getenv("GOOGLE_BOOKS_API_KEY")
 
 # Spine Detection Configuration
 # Vertical spine parameters
-SPINE_MIN_ASPECT_RATIO = float(os.getenv("SPINE_MIN_ASPECT_RATIO", 2.5))  # height/width ratio for vertical spines
+SPINE_MIN_ASPECT_RATIO = float(os.getenv("SPINE_MIN_ASPECT_RATIO", 2.0))  # height/width ratio for vertical spines
 SPINE_MAX_WIDTH_RATIO = float(os.getenv("SPINE_MAX_WIDTH_RATIO", 0.95))   # width/image_width ratio
-SPINE_MIN_HEIGHT_RATIO = float(os.getenv("SPINE_MIN_HEIGHT_RATIO", 0.1))  # height/image_height ratio
+SPINE_MIN_HEIGHT_RATIO = float(os.getenv("SPINE_MIN_HEIGHT_RATIO", 0.08))  # height/image_height ratio
 
 # Horizontal spine parameters
-SPINE_MIN_HORIZONTAL_ASPECT_RATIO = float(os.getenv("SPINE_MIN_HORIZONTAL_ASPECT_RATIO", 2.0))  # width/height ratio for horizontal spines
+SPINE_MIN_HORIZONTAL_ASPECT_RATIO = float(os.getenv("SPINE_MIN_HORIZONTAL_ASPECT_RATIO", 1.6))  # width/height ratio for horizontal spines
 SPINE_MAX_HEIGHT_RATIO = float(os.getenv("SPINE_MAX_HEIGHT_RATIO", 0.3))   # height/image_height ratio for horizontal spines
 SPINE_MIN_WIDTH_RATIO = float(os.getenv("SPINE_MIN_WIDTH_RATIO", 0.1))    # width/image_width ratio for horizontal spines
 
 # Common parameters
-SPINE_MIN_WIDTH_PX = int(os.getenv("SPINE_MIN_WIDTH_PX", 30))  # minimum width in pixels for readability
+SPINE_MIN_WIDTH_PX = int(os.getenv("SPINE_MIN_WIDTH_PX", 20))  # minimum width in pixels for readability
 
 # Shelf grouping parameters
 SHELF_BOUNDARY_PADDING = float(os.getenv("SHELF_BOUNDARY_PADDING", 0.05))  # 5% padding for shelf boundaries
@@ -48,3 +48,9 @@ LLM_MODEL_NAME = os.getenv("LLM_MODEL_NAME", "gemini-2.5-flash")
 MAX_SHELVES = int(os.getenv("MAX_SHELVES", 6))
 SHELF_CLUSTER_PADDING_RATIO = float(os.getenv("SHELF_CLUSTER_PADDING_RATIO", 0.08))
 SHELF_SILHOUETTE_MIN = float(os.getenv("SHELF_SILHOUETTE_MIN", 0.2))
+
+# Test-time augmentation (TTA) for YOLO
+ENABLE_TTA = os.getenv("ENABLE_TTA", "true").lower() == "true"
+TTA_SCALES = os.getenv("TTA_SCALES", "0.75,1.0,1.25")  # comma-separated floats
+ENABLE_HFLIP_TTA = os.getenv("ENABLE_HFLIP_TTA", "true").lower() == "true"
+TTA_MERGE_IOU = float(os.getenv("TTA_MERGE_IOU", 0.5))

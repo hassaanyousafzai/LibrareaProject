@@ -32,8 +32,8 @@ def is_blank_spine(metadata: dict) -> bool:
     author = metadata.get("Author", "").strip()
     
     # Filter out books where both Author and Book Name are "Unrecognized"
-    if title == "Unrecognized" and author == "Unrecognized":
-        return True
+    # if title == "Unrecognized" and author == "Unrecognized":
+    #     return True
     
     if not title and not author:
         return True
