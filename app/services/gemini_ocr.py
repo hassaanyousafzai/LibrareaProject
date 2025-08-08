@@ -16,42 +16,36 @@ client = genai.Client()
 _last_call_ts: float = 0.0
 
 prompt = """
-You are an expert in extracting book metadata strictly from spine images. Your task is to return a JSON with three keys only: "Author", "Book Name", and "Series Name".
+You must transcribe ONLY text that is clearly visible on the book spine image. Never use outside knowledge, memory, or guessing.
 
-CRITICAL RULES (Hallucination guard):
-- NEVER use outside knowledge, prior memory, or guesses. ONLY transcribe text that is clearly visible in the crop.
-- If text is blurred, cut off, too small, blocked, or ambiguous, return an empty string for that field.
-- If you see only logos, artwork, publishers, imprints, or decorative words (e.g., "Penguin", "HarperCollins"), do not treat them as Author or Book Name.
-- If only a series brand is visible, set "Series Name" and leave other fields empty.
-- If you are not at least reasonably certain a word belongs to that field from the spine itself, return an empty string.
+Your output MUST be a JSON with exactly these keys (values are strings): "Author", "Book Name", and "Series Name".
 
-AUTHOR:
-- Extract visible author name(s) only (initials allowed). Multiple authors allowed with "and" or "&".
-- Do NOT infer missing parts or expand initials.
+Hard rules (no exceptions):
+- If any field is unclear, cut off, too small, blurred, occluded, or not confidently readable, return "" for that field.
+- Do NOT infer, expand, translate, or complete partial text (e.g., do not expand initials, do not add missing surnames).
+- The returned values MUST be substrings that visibly appear on the spine. If you cannot see it, return "".
+- Treat publishers, imprints, retailers, slogans, and logos as NOT the author or title. Examples to ignore as author/title: "Penguin", "Puffin", "Vintage", "Random House", "Scholastic", "HarperCollins", "Oxford", "Cambridge", "Penguin Classics", "Anchor", "Pan Macmillan".
+- If only a series brand is visible, set "Series Name" to that brand and leave the other fields "".
 
-BOOK NAME:
-- Extract ONLY the actual title on the spine (not captions, slogans, taglines, or series arcs).
-- If the title includes a valid subtitle joined by punctuation, include it (e.g., "Title: Subtitle").
-- If unsure whether a long phrase is the title, choose the shorter, core title. If still unsure, return empty.
+Author:
+- Visible person name(s) only; initials allowed; multiple authors joined by " and " or " & ".
 
-SERIES NAME:
-- Extract only the core series brand (e.g., "Warriors").
-- Exclude volume labels, arcs, phrases like "Book One", "Volume 1", "The Original Series".
-- If not clearly present, return empty.
+Book Name:
+- Extract ONLY the core title as printed on the spine; EXCLUDE subtitles, taglines, and series arcs.
+- If the spine shows a separator like ":", " - ", " – ", or " — " (colon, dash, en dash, em dash), keep ONLY the text before the separator as the title.
+- If multiple stacked lines are present, prefer the largest standalone title line; exclude smaller descriptive lines.
+- When in doubt, choose the shorter main title; if still unsure, return "".
 
-OUTPUT FORMAT:
-- Return ONLY JSON with keys: "Author", "Book Name", "Series Name" (no extra keys).
-- All values must be strings.
+Series Name:
+- Only the core series brand (e.g., "Warriors"); exclude volume labels (e.g., "Book One"), arcs, and descriptors.
 
-EXAMPLES:
-1) If the crop is mostly blank or unreadable:
-{"Author": "", "Book Name": "", "Series Name": ""}
+Output format:
+- Return ONLY JSON with keys "Author", "Book Name", "Series Name". No extra keys, notes, or prose.
 
-2) If only a series logo like "Goosebumps" is clearly visible:
-{"Author": "", "Book Name": "", "Series Name": "Goosebumps"}
-
-3) If author initials and a short clear title are visible:
-{"Author": "J.K. Rowling", "Book Name": "Harry Potter", "Series Name": ""}
+Negative examples:
+- If you see only "Penguin Classics": {"Author":"", "Book Name":"", "Series Name":"Penguin Classics"}
+- If you see a partial author like "J. R. R." with no surname: {"Author":"", "Book Name":"", "Series Name":""}
+- If multiple big words exist but none clearly looks like a title: {"Author":"", "Book Name":"", "Series Name":""}
 """
 
 generate_content_config = types.GenerateContentConfig(
