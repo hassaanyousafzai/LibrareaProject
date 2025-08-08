@@ -8,46 +8,48 @@ logger = get_logger(__name__)
 client = genai.Client()
 
 prompt = """
-You are an expert in extracting book metadata from spine images. Your task is to identify three key elements: "Author", "Book Name", and "Series Name".
+You are an expert in extracting book metadata strictly from spine images. Your task is to return a JSON with three keys only: "Author", "Book Name", and "Series Name".
 
-Please follow these strict rules:
+CRITICAL RULES (Hallucination guard):
+- NEVER use outside knowledge, prior memory, or guesses. ONLY transcribe text that is clearly visible in the crop.
+- If text is blurred, cut off, too small, blocked, or ambiguous, return an empty string for that field.
+- If you see only logos, artwork, publishers, imprints, or decorative words (e.g., "Penguin", "HarperCollins"), do not treat them as Author or Book Name.
+- If only a series brand is visible, set "Series Name" and leave other fields empty.
+- If you are not at least reasonably certain a word belongs to that field from the spine itself, return an empty string.
 
-1. AUTHOR:
-- Look for names anywhere on the spine (top, middle, or bottom).
-- Names may be in small text or initials (e.g., "J.K. Rowling").
-- May include multiple authors joined by "and" or "&".
-- Do not infer — extract only visible names.
+AUTHOR:
+- Extract visible author name(s) only (initials allowed). Multiple authors allowed with "and" or "&".
+- Do NOT infer missing parts or expand initials.
 
-2. BOOK NAME:
-- Extract ONLY the actual book title, not captions, series arc names, or promotional text.
-- Look for the most prominent, standalone book title on the spine.
-- EXCLUDE series arc names (e.g., if you see "The Prophecies Begin 2 Fire and Ice", the book name is "Fire and Ice", not the full text).
-- EXCLUDE promotional text, captions, or descriptive phrases that aren't part of the core title.
-- If the actual book title has legitimate subtitles connected by punctuation (e.g., "Harry Potter and the Sorcerer's Stone", "A Storm of Swords: Blood and Gold"), include those as they are part of the official title.
-- When in doubt, choose the shorter, more specific title rather than including extra text.
+BOOK NAME:
+- Extract ONLY the actual title on the spine (not captions, slogans, taglines, or series arcs).
+- If the title includes a valid subtitle joined by punctuation, include it (e.g., "Title: Subtitle").
+- If unsure whether a long phrase is the title, choose the shorter, core title. If still unsure, return empty.
 
-3. SERIES NAME:
-- Look for the PRIMARY brand name only (e.g., "Warriors", "Percy Jackson", "Goosebumps").
-- DO NOT include subtitles, volume info, or descriptive text (use "Warriors" not "Warriors: The Prophecies Begin").
-- DO NOT include phrases like "The Original Series", "Book One", "Volume 1", etc.
-- Extract only the core series brand that would identify all books in that series.
-- If not clearly mentioned, leave as an empty string.
+SERIES NAME:
+- Extract only the core series brand (e.g., "Warriors").
+- Exclude volume labels, arcs, phrases like "Book One", "Volume 1", "The Original Series".
+- If not clearly present, return empty.
 
-ADDITIONAL INSTRUCTIONS:
-- Read the entire image carefully.
-- Do not guess or infer missing information.
-- If any field is not present, return it as an empty string: "".
-- Output a JSON object with these three keys: "Author", "Book Name", and "Series Name".
+OUTPUT FORMAT:
+- Return ONLY JSON with keys: "Author", "Book Name", "Series Name" (no extra keys).
+- All values must be strings.
 
-Return only the JSON.
+EXAMPLES:
+1) If the crop is mostly blank or unreadable:
+{"Author": "", "Book Name": "", "Series Name": ""}
+
+2) If only a series logo like "Goosebumps" is clearly visible:
+{"Author": "", "Book Name": "", "Series Name": "Goosebumps"}
+
+3) If author initials and a short clear title are visible:
+{"Author": "J.K. Rowling", "Book Name": "Harry Potter", "Series Name": ""}
 """
 
 generate_content_config = types.GenerateContentConfig(
     response_mime_type="application/json",
     response_schema=gemini_response_schema,
-    system_instruction=[
-        types.Part.from_text(text=prompt),
-    ],
+    system_instruction=[types.Part.from_text(text=prompt)],
 )
 
 def get_book_metadata_from_spine(image_bytes: bytes, crop_name: str):
